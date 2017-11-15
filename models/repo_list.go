@@ -112,6 +112,9 @@ type SearchRepoOptions struct {
 	// True -> include just mirrors
 	// False -> include just non-mirrors
 	Mirror util.OptionalBool
+	//IYO organizations
+	IyoOrganizations	[]string
+
 }
 
 //SearchOrderBy is used to sort the result
@@ -165,6 +168,17 @@ func SearchRepositoryByName(opts *SearchRepoOptions) (RepositoryList, int64, err
 					builder.Neq{"owner_id": opts.OwnerID})
 				if !opts.Private {
 					collaborateCond = collaborateCond.And(builder.Expr("owner_id NOT IN (SELECT org_id FROM org_user WHERE org_user.uid = ? AND org_user.is_public = ?)", opts.OwnerID, false))
+				}
+				if len(opts.IyoOrganizations) > 0 {
+
+					iyoReposCond := builder.Select("repo_id").
+						From("iyo_collaboration").
+						Where(builder.In("organization_global_id", opts.IyoOrganizations))
+
+					iyoCond := builder.And(
+						builder.In("id", iyoReposCond),
+						builder.Neq{"owner_id": opts.OwnerID})
+					collaborateCond = collaborateCond.Or(iyoCond)
 				}
 
 				accessCond = accessCond.Or(collaborateCond)

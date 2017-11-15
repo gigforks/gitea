@@ -234,6 +234,11 @@ func Contexter() macaron.Handler {
 		ctx.Data["ShowFooterBranding"] = setting.ShowFooterBranding
 		ctx.Data["ShowFooterVersion"] = setting.ShowFooterVersion
 		ctx.Data["EnableOpenIDSignIn"] = setting.Service.EnableOpenIDSignIn
+		//TODO Limit the acess control list to specific domains from settings
+		ctx.Header().Set("Access-Control-Allow-Origin", "*")
+		ctx.Header().Set("'Access-Control-Allow-Credentials' ", "true")
+		ctx.Header().Set("Access-Control-Max-Age", "3600")
+		ctx.Header().Set("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With")
 
 		c.Map(ctx)
 	}

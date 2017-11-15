@@ -150,6 +150,11 @@ func providerAuthHeaderWorks(tokenURL string) bool {
 
 func RetrieveToken(ctx context.Context, clientID, clientSecret, tokenURL string, v url.Values) (*Token, error) {
 	hc, err := ContextClient(ctx)
+	// Skip SSL verify when run on dev environment
+	/*
+	hc.Transport = &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}*/
 	if err != nil {
 		return nil, err
 	}

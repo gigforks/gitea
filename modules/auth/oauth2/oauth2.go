@@ -24,6 +24,7 @@ import (
 	"github.com/markbates/goth/providers/gplus"
 	"github.com/markbates/goth/providers/openidConnect"
 	"github.com/markbates/goth/providers/twitter"
+	"github.com/markbates/goth/providers/iyo"
 	"github.com/satori/go.uuid"
 )
 
@@ -171,6 +172,8 @@ func createProvider(providerName, providerType, clientID, clientSecret, openIDCo
 		}
 	case "twitter":
 		provider = twitter.NewAuthenticate(clientID, clientSecret, callbackURL)
+	case "itsyou.online":
+		provider = iyo.New(clientID, clientSecret, callbackURL, "user:email,user:name")
 	}
 
 	// always set the name if provider is created so we can support multiple setups of 1 provider

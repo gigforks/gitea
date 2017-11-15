@@ -74,10 +74,30 @@ func accessLevel(e Engine, userID int64, repo *Repository) (AccessMode, error) {
 	}
 
 	a := &Access{UserID: userID, RepoID: repo.ID}
-	if has, err := e.Get(a); !has || err != nil {
+	var has bool
+	var err error
+	if has, err = e.Get(a); err != nil {
 		return mode, err
 	}
-	return a.Mode, nil
+
+	// if the user isn't in the list set the default access level
+	if !has {
+		a.Mode = mode
+	}
+
+	// Get the user from the id, return the currently acquired access mode if there
+	// is an error
+	u, err := GetUserByID(userID)
+	if err != nil {
+		return mode, err
+	}
+	if u.LoginType == LoginOAuth2 {
+		mode, err = IyoAccessLevel(e, u, repo, a.Mode)
+		if err != nil {
+			return a.Mode, err
+		}
+	}
+	return mode, nil
 }
 
 // AccessLevel returns the Access a user has to a repository. Will return NoneAccess if the
