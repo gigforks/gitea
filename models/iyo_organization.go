@@ -165,7 +165,7 @@ func (repo *Repository) getIyoCollaborators(e Engine) ([]*IyoCollaborator, error
 // Get User organizations from goth session
 func GetUserOrganizations(request *http.Request, user *User) ([]string) {
 	userOrgs := make([]string, 0)
-	if user.LoginType == LoginOAuth2 {
+	if user != nil && user.IsOAuth2(){
 		loginSource , err:= GetLoginSourceByID(user.LoginSource)
 		if loginSource.OAuth2().Provider == "itsyou.online" && err == nil{
 			sessionKey := loginSource.Name + gothic.SessionName

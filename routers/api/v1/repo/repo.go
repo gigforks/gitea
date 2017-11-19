@@ -64,6 +64,7 @@ func Search(ctx *context.APIContext) {
 		Page:        ctx.QueryInt("page"),
 		PageSize:    convert.ToCorrectPageSize(ctx.QueryInt("limit")),
 		Collaborate: util.OptionalBoolNone,
+		IyoOrganizations: models.GetUserOrganizations(ctx.Req.Request, ctx.User),
 	}
 
 	if ctx.QueryBool("exclusive") {

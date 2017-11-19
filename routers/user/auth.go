@@ -691,7 +691,7 @@ func LinkAccountPostRegister(ctx *context.Context, cpt *captcha.Captcha, form au
 		return
 	}
 
-	ctx.Redirect(setting.AppSubURL + "/user/login")
+	ctx.Redirect(setting.AppSubURL + "/user/login/oauth")
 }
 
 // SignOut sign out from login status
