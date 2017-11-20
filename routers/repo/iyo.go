@@ -6,6 +6,7 @@ import (
 	"code.gitea.io/gitea/models"
 	"code.gitea.io/gitea/modules/context"
 	"code.gitea.io/gitea/modules/log"
+	"github.com/markbates/goth/providers/iyo"
 )
 
 // CollaborationOrgPost adds a collaboration between an Itsyou.Online organization
@@ -16,6 +17,21 @@ func CollaborationOrgPost(ctx *context.Context) {
 		log.Warn("Guess what, there aint no name in the query")
 		ctx.Redirect(ctx.Repo.RepoLink + "/settings/collaboration")
 		return
+	}
+
+	loginSources, _ := models.LoginSources()
+	for _, source := range loginSources {
+		if source.IsOAuth2() {
+			sourceCfg := source.OAuth2()
+			if sourceCfg.Provider == "itsyou.online" {
+				provider := iyo.New(sourceCfg.ClientID, sourceCfg.ClientSecret, "", "")
+				if !provider.IsChildOrganization(name) {
+					ctx.Flash.Error(ctx.Tr("collaborator_not_found"))
+					ctx.Redirect(ctx.Repo.RepoLink + "/settings/collaboration")
+					return
+				}
+			}
+		}
 	}
 
 	if err := ctx.Repo.Repository.AddIyoCollaborator(name); err != nil {

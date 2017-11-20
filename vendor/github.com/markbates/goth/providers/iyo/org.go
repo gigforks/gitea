@@ -16,7 +16,7 @@ type Organization struct {
 	Children 	ChildOrganizations	`json:"children"`
 }
 
-// Get all organization children
+// Get all organization children that the user is member of
 func (p *Provider) getUserOrganizations(userName string) ([]string, error){
 	accessToken, err := p.getOrgAccessToken()
 	if err != nil {
@@ -35,6 +35,29 @@ func (p *Provider) getUserOrganizations(userName string) ([]string, error){
 		}
 	}
 	return userOrganizations, nil
+}
+
+// Get all organization children that the user is member of
+func (p *Provider) IsChildOrganization(org string) (bool) {
+	if org == p.config.ClientID {
+		return true
+	}
+
+	accessToken, err := p.getOrgAccessToken()
+	if err != nil {
+		return false
+	}
+
+	childOrganizations, err := p.getOrganizations(accessToken)
+	if err != nil {
+		return false
+	}
+	for _, globalId := range childOrganizations {
+		if org == globalId {
+			return true
+		}
+	}
+	return false
 }
 
 func (p *Provider) getOrganizations(accessToken string) ([]string, error){
