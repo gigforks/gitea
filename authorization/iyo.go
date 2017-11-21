@@ -80,8 +80,6 @@ func doRequest(hc *http.Client, r *http.Request, setAuthHeader bool) (*http.Resp
 		return resp, err
 	}
 
-	log.Debug("Retry request")
-
 	// refresh token and try again
 	getAccessToken()
 	// set the new token in the header
