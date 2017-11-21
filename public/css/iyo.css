@@ -1,3 +1,46 @@
+body {
+  font-family: "Helvetica Neue", "Meiryo Ui", "Microsoft YaHei", Arial, Helvetica, sans-serif !important;
+}
+
+.following.bar {
+  .head.link.item {
+		.dropdown.icon,
+		.menu .octicon {
+			margin-right: 5px;
+		}
+	}
+}
+
+// ensure Semantic UI .icon font family and 14px size does not apply to .icon.octicon
+.octicon.icon,
+.mega-octicon.icon {
+	font-family: octicons;
+	font-size: 16px;
+	opacity: 1 !important;
+}
+
+.following.bar .brand .ui.mini.image{
+	width: 80px;
+}
+
+
+.ui.secondary.menu .active.item{
+	color: #fff;
+	background-color: rgb(127, 179, 46);
+}
+
+.ui.blue.button, .ui.blue.buttons .button{
+	background-color: rgb(127, 179, 46);
+}
+
+.ui.blue.button:hover, .ui.blue.buttons .button:hover{
+	background-color: rgb(127, 199, 46);
+}
+
+.ui.segment.results {
+  z-index: 1;
+}
+
 .iyo-button {
     display: inline-block;
     text-align: center;
@@ -9,7 +52,7 @@
     background: -moz-linear-gradient(top, rgb(77,115,138), rgb(77,115,138));
     background: linear-gradient(to bottom, rgb(77,115,138), rgb(77,115,138));
     text-shadow: #591717 1px 1px 1px;
-    font: normal normal bold 16px impact;
+    font: 16px sans-serif;
     color: #ffffff;
     text-decoration: none;
 }
@@ -40,4 +83,9 @@
     left: 0px;
     background: url("../img/auth/login.png") no-repeat left center transparent;
     background-size: 100% 100%;
+}
+
+.iyo-signup{
+    padding: 10px 8px;
+    border-radius: 3px;
 }
