@@ -275,6 +275,7 @@ func RegisterRoutes(m *macaron.Macaron) {
 
 	m.Group("/v1", func() {
 		registerExtendedRoutes(m)
+		m.Options("/*", func() {})
 		// Miscellaneous
 		m.Get("/swagger", misc.Swagger)
 		m.Get("/version", misc.Version)
