@@ -371,6 +371,10 @@ func SignInOAuth(ctx *context.Context) {
 		ctx.Handle(500, "SignIn", err)
 		return
 	}
+	// Check auto-login and set the redirect_url.
+	if checkAutoLogin(ctx) {
+		return
+	}
 
 	// try to do a direct callback flow, so we don't authenticate the user again but use the valid accesstoken to get the user
 	user, gothUser, err := oAuth2UserLoginCallback(loginSource, ctx.Req.Request, ctx.Resp)
@@ -691,7 +695,7 @@ func LinkAccountPostRegister(ctx *context.Context, cpt *captcha.Captcha, form au
 		return
 	}
 
-	ctx.Redirect(setting.AppSubURL + "/user/login/oauth")
+	ctx.Redirect(setting.AppSubURL + "/user/oauth2/Itsyou.online")
 }
 
 // SignOut sign out from login status
