@@ -737,6 +737,8 @@ func SignUp(ctx *context.Context) {
 	ctx.Data["DisableRegistration"] = setting.Service.DisableRegistration
 
 	ctx.HTML(200, tplSignUp)
+	// Disable Register and redirect only
+	ctx.Redirect(setting.AppSubURL + "/user/oauth2/Itsyou.online")
 }
 
 // SignUpPost response for sign up information submission
