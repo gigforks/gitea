@@ -43,7 +43,7 @@ func (s *Session) Authorize(provider goth.Provider, params goth.Params) (string,
 	s.UserName = info["username"].(string)
 	// Get All children organizations of the organization whose client_secret was used
 	// and the user is member of it
-	userOrganizations, err := p.getUserOrganizations(s.UserName)
+	userOrganizations, err := p.GetUserOrganizations(s.UserName)
 	if err == nil {
 		s.Organizations = userOrganizations
 	}

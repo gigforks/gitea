@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"code.gitea.io/gitea/modules/log"
+	"code.gitea.io/gitea/modules/cache"
 	"github.com/markbates/goth/gothic"
 )
 
@@ -179,6 +180,18 @@ func GetUserOrganizations(request *http.Request, user *User) []string {
 					}{}
 					json.Unmarshal([]byte(sessionValue.(string)), &session)
 					userOrgs = session.Organizations
+				}
+			}
+
+			// The user may be authenticated through jwt using apis
+			// so orgs are cached in memory not in session
+			if len(userOrgs) == 0 {
+				cachedOrgs, err := cache.Get("itsyou.online_" + user.Name)
+				if err == nil {
+					orgs, ok := cachedOrgs.([]string)
+					if ok {
+						userOrgs = orgs
+					}
 				}
 			}
 		}

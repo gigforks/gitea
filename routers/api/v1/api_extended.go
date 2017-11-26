@@ -28,5 +28,5 @@ func registerExtendedRoutes(m *macaron.Macaron) {
 	m.Post("/orgs", reqToken(), bind(api.CreateOrgOption{}), org.CreateOrganization)
 
 	m.Get("/orgs/search", repo.SearchOrgs)
-
+	m.Post("/token-by-jwt", bind(user.TokenByJwtOption{}), user.GetTokenByJWT)
 }

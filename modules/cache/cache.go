@@ -11,6 +11,7 @@ import (
 	"code.gitea.io/gitea/modules/setting"
 
 	mc "github.com/go-macaron/cache"
+	"fmt"
 )
 
 var conn mc.Cache
@@ -94,4 +95,24 @@ func Remove(key string) {
 		return
 	}
 	conn.Delete(key)
+}
+
+// Get returns key value from cache
+func Get(key string) (interface{}, error) {
+	if conn == nil || setting.CacheService.TTL == 0 {
+		return nil, fmt.Errorf("Error Conn: %v", conn)
+	}
+	if conn.IsExist(key) {
+		fmt.Println("Trying to get ", key)
+		return conn.Get(key), nil
+	}
+	return nil, fmt.Errorf("Error Key not found: %v", conn)
+}
+
+// Get returns key value from cache
+func Put(key string, value interface{}) {
+	if conn == nil || setting.CacheService.TTL == 0 {
+		return
+	}
+	conn.Put(key, value, int64(setting.CacheService.TTL.Seconds()))
 }

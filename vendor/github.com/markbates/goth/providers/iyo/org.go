@@ -17,7 +17,7 @@ type Organization struct {
 }
 
 // Get all organization children that the user is member of
-func (p *Provider) getUserOrganizations(userName string) ([]string, error){
+func (p *Provider) GetUserOrganizations(userName string) ([]string, error){
 	accessToken, err := p.getOrgAccessToken()
 	if err != nil {
 		return nil, err
