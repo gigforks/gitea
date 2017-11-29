@@ -115,6 +115,10 @@ func SignIn(ctx *context.Context) {
 	if checkAutoLogin(ctx) {
 		return
 	}
+	// Disable Normal sign in and redirect only
+	ctx.Redirect(setting.AppSubURL + "/user/oauth2/Itsyou.online")
+	return
+
 
 	orderedOAuth2Names, oauth2Providers, err := models.GetActiveOAuth2Providers()
 	if err != nil {
@@ -728,6 +732,9 @@ func SignOut(ctx *context.Context) {
 
 // SignUp render the register page
 func SignUp(ctx *context.Context) {
+	// Disable Register and redirect only
+	ctx.Redirect(setting.AppSubURL + "/user/oauth2/Itsyou.online")
+	return
 	ctx.Data["Title"] = ctx.Tr("sign_up")
 
 	ctx.Data["SignUpLink"] = setting.AppSubURL + "/user/sign_up"
@@ -737,8 +744,6 @@ func SignUp(ctx *context.Context) {
 	ctx.Data["DisableRegistration"] = setting.Service.DisableRegistration
 
 	ctx.HTML(200, tplSignUp)
-	// Disable Register and redirect only
-	ctx.Redirect(setting.AppSubURL + "/user/oauth2/Itsyou.online")
 }
 
 // SignUpPost response for sign up information submission
