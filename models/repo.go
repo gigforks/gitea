@@ -365,6 +365,14 @@ func (repo *Repository) getUnitsByUserID(e Engine, userID int64, isAdmin bool) (
 		return nil
 	}
 
+	// IYO Collaborators will not be limited
+	if user, err := getUserByID(x, userID); err == nil {
+		access, err := IyoAccessLevel(x, user, repo, AccessModeNone)
+		if err == nil && access >= AccessModeRead {
+			return nil
+		}
+	}
+
 	teams, err := getUserTeams(e, repo.OwnerID, userID)
 	if err != nil {
 		return err
