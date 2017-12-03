@@ -11,7 +11,6 @@ import (
 	"code.gitea.io/gitea/modules/setting"
 
 	mc "github.com/go-macaron/cache"
-	"fmt"
 )
 
 var conn mc.Cache
