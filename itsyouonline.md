@@ -1,11 +1,39 @@
-## ItsYou.online login user handling
+## Gitea Installation:
+You can Install gitea normally from [official docs](https://docs.gitea.io/en-us/install-from-source/)
 
-What happens when a user logs in with ItsYou.online for the first time:
+## ItsYou.online Integration
 
-1. The user can link an existing gitea user with the same itsyou.online user.
-2. or the user can create a new account on gitea to be linked with itsyou.online.
+To Integrate itsyou.online with gitea you need:
 
-note that the user will be able to login through itsyou.online or through his normal username and password
+* Use our gitea fork branch [iyo_integration](https://github.com/gigforks/gitea/tree/iyo_integration)
+
+```bash
+cd $GOPATH/src/code.gitea.io/gitea
+git remote add gigfork https://github.com/gigforks/gitea.git
+git pull gigfork 
+git checkout iyo_cleanup
+```
+
+* Rebuild gitea
+ ```bash
+cd $GOPATH/src/code.gitea.io/gitea && TAGS="bindata" make generate build
+```
+
+* Add new oauth2 login source from database:
+ ```
+ insert into login_source (type, name, is_actived, cfg, created_unix, updated_unix) VALUES
+  (6, 'Itsyou.onlineee', TRUE, 
+  '{"Provider":"itsyou.online","ClientID":"abdoorg","ClientSecret":"f8G3fX9_4fIhfjxUjZrvFTPrObowRuL1i4iWnlS65HHd36m_9chD","OpenIDConnectAutoDiscoveryURL":"","CustomURLMapping":null}',
+   extract('epoch' from CURRENT_TIMESTAMP) , extract('epoch' from CURRENT_TIMESTAMP)
+  );
+ ```
+
+* Start Gitea
+```bash
+./gitea web
+```
+
+Note that when you will first login with itsyou.online, a user will be created on gitea linked to itsyou.online user. You will be able to choose the show username on gitea and set the password
 
 ## ItsYou.online organizations integration
 
@@ -14,24 +42,22 @@ All users who have access to the organizations that have been added will then be
 granted the corresponding access rights. These rights are evaluated every time the user
 tries to perform an action such as pushing a commit. Because this evaluation requires
 an API access key on ItsYou.online, only the organization previously defined in the
-settings, and all of its children can be successfully authorized in this way. Therefore,
-despite the ability to add any organization, only the aforementioned ones will be able
+login source, and all of its children can be successfully authorized in this way. Therefore,
+you can only add this organization or one of its children as collaborators, and only the aforementioned ones will be able
 to authenticate successfully as members of the collaborating ItsYou.online organization.
 
 
-## To extend locales of the application
-Extend your locale under options/locale ( for example you will have `options/locale/locale_en-US.ini`)
-Add required words
+## GIG cutom templates and locale
+You can use GIG custom templates and locales by adding the contents of  [Custom Gitea](`https://github.com/Incubaid/gitea-custom`) repo into application custom dir `custom/`
 
-```
-sign_in_itsyouonline = Sign in using ItsyouOnline
+## Migration from GOGS
+You can use migration steps from official [gitea docs](https://docs.gitea.io/en-us/upgrade-from-gogs/)
 
-```
-Then in templates you can access it using
-```
-{{.i18n.Tr "sign_in_itsyouonline" }}
-```
-
-## to extend templates of the application
-You can create new directory in application custom dir `custom/templates` then create template files with the same name
-e.g.: [Custom Gitea Template](`https://github.com/Incubaid/gitea_templates`)
+##### * for integrating iyo users with the migrated gogs you will need to:
+ * Add new oauth2 login source from database (The same way added in the new installation steps)
+ * You will need to edit `user` table to link users with iyo:
+  ```
+   UPDATE "user"
+   set login_name = lower_name
+   where type = 0;
+   ```
