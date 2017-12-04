@@ -4,6 +4,7 @@
 [![Join the chat at https://img.shields.io/discord/322538954119184384.svg](https://img.shields.io/discord/322538954119184384.svg)](https://discord.gg/NsatcWJ)
 [![](https://images.microbadger.com/badges/image/gitea/docs.svg)](http://microbadger.com/images/gitea/docs "Get your own image badge on microbadger.com")
 
+## For Gitea Setup integrated with itsyou.online please refer to [ITSYOUNLINE INTEGRATION](./itsyouonline.md)
 ## Hosting
 
 This page is hosted on our infrastructure within Docker containers, it gets

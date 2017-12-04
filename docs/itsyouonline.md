@@ -20,10 +20,14 @@ cd $GOPATH/src/code.gitea.io/gitea && TAGS="bindata" make generate build
 ```
 
 * Add new oauth2 login source from database:
+New `login source` in gitea means allowing users to login through new method other than the standard login with username and password. So here we are creating a new login source with organization client_id and client_secret so that we can allow users to login through itsyou.online. Note that you will need to change the ORG_CLIENT_ID (organization name)  and ORG_CLIENT_SECRET in the query with your values.
  ```
+ # Connect to the database i.e with psql client
+ psql DATABASENAME
+ # Issue the insert query
  insert into login_source (type, name, is_actived, cfg, created_unix, updated_unix) VALUES
-  (6, 'Itsyou.onlineee', TRUE, 
-  '{"Provider":"itsyou.online","ClientID":"abdoorg","ClientSecret":"f8G3fX9_4fIhfjxUjZrvFTPrObowRuL1i4iWnlS65HHd36m_9chD","OpenIDConnectAutoDiscoveryURL":"","CustomURLMapping":null}',
+  (6, 'Itsyou.online', TRUE, 
+  '{"Provider":"itsyou.online","ClientID":"ORG_CLIEN_ID","ClientSecret":"ORG_CLIENT_SECRET","OpenIDConnectAutoDiscoveryURL":"","CustomURLMapping":null}',
    extract('epoch' from CURRENT_TIMESTAMP) , extract('epoch' from CURRENT_TIMESTAMP)
   );
  ```
@@ -47,8 +51,8 @@ you can only add this organization or one of its children as collaborators, and 
 to authenticate successfully as members of the collaborating ItsYou.online organization.
 
 
-## GIG cutom templates and locale
-You can use GIG custom templates and locales by adding the contents of  [Custom Gitea](`https://github.com/Incubaid/gitea-custom`) repo into application custom dir `custom/`
+## GIG custom templates and locale
+You can use GIG custom templates and locales by adding the contents of  [Custom Gitea](https://github.com/Incubaid/gitea-custom) repo into application custom dir `custom/`
 
 ## Migration from GOGS
 You can use migration steps from official [gitea docs](https://docs.gitea.io/en-us/upgrade-from-gogs/)
@@ -58,6 +62,6 @@ You can use migration steps from official [gitea docs](https://docs.gitea.io/en-
  * You will need to edit `user` table to link users with iyo:
   ```
    UPDATE "user"
-   set login_name = lower_name
+   set login_name = lower_name, login_type=6, login_source=1
    where type = 0;
    ```
