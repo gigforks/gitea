@@ -16,6 +16,7 @@ import (
 	"code.gitea.io/gitea/modules/context"
 	"code.gitea.io/gitea/modules/setting"
 	"code.gitea.io/gitea/modules/util"
+	"strings"
 )
 
 const (
@@ -240,11 +241,17 @@ func Issues(ctx *context.Context) {
 		userRepoIDs = []int64{-1}
 	}
 
+	keyword := strings.Trim(ctx.Query("keyword"), " ")
+	if bytes.Contains([]byte(keyword), []byte{0x00}) {
+		keyword = ""
+	}
+
 	opts := &models.IssuesOptions{
 		RepoID:   repoID,
 		IsClosed: util.OptionalBoolOf(isShowClosed),
 		IsPull:   util.OptionalBoolOf(isPullList),
 		SortType: sortType,
+		Keyword:  keyword,
 	}
 
 	switch filterMode {
@@ -311,7 +318,7 @@ func Issues(ctx *context.Context) {
 		issue.Repo = showReposMap[issue.RepoID]
 	}
 
-	issueStats := models.GetUserIssueStats(repoID, ctxUser.ID, userRepoIDs, filterMode, isPullList)
+	issueStats := models.GetUserIssueStats(repoID, ctxUser.ID, userRepoIDs, filterMode, isPullList, opts.Keyword)
 
 	var total int
 	if !isShowClosed {
@@ -329,6 +336,7 @@ func Issues(ctx *context.Context) {
 	ctx.Data["SortType"] = sortType
 	ctx.Data["RepoID"] = repoID
 	ctx.Data["IsShowClosed"] = isShowClosed
+	ctx.Data["Keyword"] = keyword
 
 	if isShowClosed {
 		ctx.Data["State"] = "closed"

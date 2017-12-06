@@ -1020,6 +1020,7 @@ type IssuesOptions struct {
 	Labels      string
 	SortType    string
 	IssueIDs    []int64
+	Keyword		string
 }
 
 // sortIssuesSession sort an issues-related session based on the provided
@@ -1107,6 +1108,10 @@ func (opts *IssuesOptions) setupSession(sess *xorm.Session) error {
 				Join("INNER", "issue_label", "issue.id = issue_label.issue_id").
 				In("issue_label.label_id", labelIDs)
 		}
+	}
+
+	if len(opts.Keyword) > 0{
+		sess.And("to_tsvector(name|| '. ' || content) @@ to_tsquery(?)", opts.Keyword)
 	}
 	return nil
 }
@@ -1325,7 +1330,7 @@ func GetIssueStats(opts *IssueStatsOptions) (*IssueStats, error) {
 }
 
 // GetUserIssueStats returns issue statistic information for dashboard by given conditions.
-func GetUserIssueStats(repoID, uid int64, repoIDs []int64, filterMode int, isPull bool) *IssueStats {
+func GetUserIssueStats(repoID, uid int64, repoIDs []int64, filterMode int, isPull bool, keyword string) *IssueStats {
 	stats := &IssueStats{}
 
 	countSession := func(isClosed, isPull bool, repoID int64, repoIDs []int64) *xorm.Session {
@@ -1337,6 +1342,10 @@ func GetUserIssueStats(repoID, uid int64, repoIDs []int64, filterMode int, isPul
 			sess.And("repo_id = ?", repoID)
 		} else if len(repoIDs) > 0 {
 			sess.In("repo_id", repoIDs)
+		}
+
+		if len(keyword) > 0{
+			sess.And("to_tsvector(name|| '. ' || content) @@ to_tsquery(?)", keyword)
 		}
 
 		return sess
