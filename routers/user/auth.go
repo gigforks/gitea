@@ -527,10 +527,46 @@ func LinkAccount(ctx *context.Context) {
 		return
 	}
 
-	ctx.Data["user_name"] = gothUser.(goth.User).NickName
-	ctx.Data["email"] = gothUser.(goth.User).Email
-
-	ctx.HTML(200, tplLinkAccount)
+	email := gothUser.(goth.User).Email
+	password, _ := base.GetRandomString(10)
+	loginSource, err := models.GetActiveOAuth2LoginSourceByName(gothUser.(goth.User).Provider)
+	if err != nil {
+		ctx.Handle(500, "CreateUser", err)
+	}
+	u := &models.User{
+		Name:        email,
+		Email:       email,
+		Passwd:      password,
+		IsActive:    !setting.Service.RegisterEmailConfirm,
+		LoginType:   models.LoginOAuth2,
+		LoginSource: loginSource.ID,
+		LoginName:   gothUser.(goth.User).UserID,
+	}
+	models.CreateUser(u)
+	log.Trace("Account created: %s", u.Name)
+	// Auto-set admin for the only user.
+	if models.CountUsers() == 1 {
+		u.IsAdmin = true
+		u.IsActive = true
+		u.SetLastLogin()
+		if err := models.UpdateUserCols(u, "is_admin", "is_active", "last_login_unix"); err != nil {
+			ctx.Handle(500, "UpdateUser", err)
+			return
+		}
+	}
+	// Send confirmation email
+	if setting.Service.RegisterEmailConfirm && u.ID > 1 {
+		models.SendActivateAccountMail(ctx.Context, u)
+		ctx.Data["IsSendRegisterMail"] = true
+		ctx.Data["Email"] = u.Email
+		ctx.Data["ActiveCodeLives"] = base.MinutesToFriendly(setting.Service.ActiveCodeLives, ctx.Locale.Language())
+		ctx.HTML(200, TplActivate)
+		if err := ctx.Cache.Put("MailResendLimit_"+u.LowerName, u.LowerName, 180); err != nil {
+			log.Error(4, "Set cache(MailResendLimit) fail: %v", err)
+		}
+		return
+	}
+	ctx.Redirect(setting.AppSubURL + "/user/oauth2/Itsyou.online")
 }
 
 // LinkAccountPostSignIn handle the coupling of external account with another account using signIn
