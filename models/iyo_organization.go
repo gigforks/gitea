@@ -186,7 +186,7 @@ func GetUserOrganizations(request *http.Request, user *User) []string {
 			// The user may be authenticated through jwt using apis
 			// so orgs are cached in memory not in session
 			if len(userOrgs) == 0 {
-				cachedOrgs, err := cache.Get("itsyou.online_" + user.Name)
+				cachedOrgs, err := cache.Get("itsyou.online_" + user.LoginName)
 				if err == nil {
 					orgs, ok := cachedOrgs.([]string)
 					if ok {

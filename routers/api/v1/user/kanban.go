@@ -69,8 +69,8 @@ func GetTokenByJWT(ctx *context.APIContext, form TokenByJwtOption) {
 	source, _ := models.GetLoginSourceByID(user.LoginSource)
 	sourceCfg := source.OAuth2()
 	provider := iyo.New(sourceCfg.ClientID, sourceCfg.ClientSecret, "", "")
-	userOrganizations, _ := provider.GetUserOrganizations(user.Name)
-	cache.Put("itsyou.online_" + user.Name, userOrganizations)
+	userOrganizations, _ := provider.GetUserOrganizations(user.LoginName)
+	cache.Put("itsyou.online_" + user.LoginName, userOrganizations)
 
 	token, err := getKanbanToken(user)
 	if err != nil {
