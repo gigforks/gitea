@@ -11,7 +11,7 @@ To Integrate itsyou.online with gitea you need:
 cd $GOPATH/src/code.gitea.io/gitea
 git remote add gigfork https://github.com/gigforks/gitea.git
 git pull gigfork 
-git checkout iyo_cleanup
+git checkout iyo_integration
 ```
 
 * Rebuild gitea
