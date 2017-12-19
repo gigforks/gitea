@@ -742,21 +742,6 @@ func LinkAccountPostRegister(ctx *context.Context, cpt *captcha.Captcha, form au
 
 // SignOut sign out from login status
 func SignOut(ctx *context.Context) {
-	// Delete OAUTH2 sessions also
-	if ctx.IsSigned && ctx.User.LoginType == models.LoginOAuth2 {
-		loginSource , err:= models.GetLoginSourceByID(ctx.User.LoginSource)
-		if err == nil{
-			sessionKey := loginSource.Name + gothic.SessionName
-			session, err := gothic.Store.Get(ctx.Req.Request, sessionKey)
-			if err == nil {
-				session.Options.MaxAge = -1
-				session.Values = make(map[interface{}]interface{})
-				session.Save(ctx.Req.Request, ctx.Resp)
-			}
-			ctx.SetCookie(sessionKey, "", -1, setting.AppSubURL)
-		}
-	}
-
 	ctx.Session.Delete("uid")
 	ctx.Session.Delete("uname")
 	ctx.Session.Delete("socialId")
