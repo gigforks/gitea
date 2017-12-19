@@ -15,7 +15,6 @@ type Session struct {
 	AccessToken 	string
 	ExpiresAt   	time.Time
 	UserName    	string
-	Organizations 	[]string
 }
 
 // GetAuthURL will return the URL set by calling the `BeginAuth` function on the itsyou.online provider.
@@ -41,12 +40,6 @@ func (s *Session) Authorize(provider goth.Provider, params goth.Params) (string,
 	s.AccessToken = token.AccessToken
 	s.ExpiresAt = token.Expiry
 	s.UserName = info["username"].(string)
-	// Get All children organizations of the organization whose client_secret was used
-	// and the user is member of it
-	userOrganizations, err := p.GetUserOrganizations(s.UserName)
-	if err == nil {
-		s.Organizations = userOrganizations
-	}
 	return token.AccessToken, err
 }
 

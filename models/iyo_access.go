@@ -1,9 +1,5 @@
 package models
 
-import (
-	"code.gitea.io/gitea/authorization"
-)
-
 var cfg *OAuth2Config
 
 // IyoAccessLevel gets the IYO organization collaborators for the repository. If the
@@ -27,6 +23,7 @@ func IyoAccessLevel(e Engine, u *User, repo *Repository, acquiredAccess AccessMo
 		return acquiredAccess, err
 	}
 
+	userOrgs := u.GetUserOrganizations()
 	for _, a := range orgAccess {
 		// If this organization doesn't have an access mode that is higher then the one
 		// we already confirmed, skip to the next organization.
@@ -35,10 +32,12 @@ func IyoAccessLevel(e Engine, u *User, repo *Repository, acquiredAccess AccessMo
 		}
 		// If this organization has a higher access mode than the one we already acquired,
 		// check if the user is part of the organization
-		if authorization.UserIsMemberOfOrg(u.LoginName, a.OrganizationGlobalId, cfg.ClientID, cfg.ClientSecret) {
-			mode = a.Mode
+		for _, org := range userOrgs {
+			if org == a.OrganizationGlobalId {
+				mode = a.Mode
+				break
+			}
 		}
-
 	}
 	return mode, nil
 }

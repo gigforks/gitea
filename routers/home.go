@@ -115,7 +115,7 @@ func RenderRepoSearch(ctx *context.Context, opts *RepoSearchOptions) {
 		Keyword:   keyword,
 		OwnerID:   opts.OwnerID,
 		AllPublic: true,
-		IyoOrganizations: models.GetUserOrganizations(ctx.Req.Request, ctx.User),
+		IyoOrganizations: ctx.User.GetUserOrganizations(),
 	})
 	if err != nil {
 		ctx.Handle(500, "SearchRepositoryByName", err)

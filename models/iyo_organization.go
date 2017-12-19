@@ -2,13 +2,7 @@ package models
 
 import (
 	"fmt"
-
-	"encoding/json"
-	"net/http"
-
 	"code.gitea.io/gitea/modules/log"
-	"code.gitea.io/gitea/modules/cache"
-	"github.com/markbates/goth/gothic"
 )
 
 type IyoCollaboration struct {
@@ -162,39 +156,4 @@ func (repo *Repository) getIyoCollaborators(e Engine) ([]*IyoCollaborator, error
 		}
 	}
 	return collaborators, nil
-}
-
-// GetUserOrganizations Get User organizations from goth session
-func GetUserOrganizations(request *http.Request, user *User) []string {
-	userOrgs := make([]string, 0)
-	if user != nil && user.IsOAuth2() {
-		loginSource, err := GetLoginSourceByID(user.LoginSource)
-		if loginSource.OAuth2().Provider == "itsyou.online" && err == nil {
-			sessionKey := loginSource.Name + gothic.SessionName
-			session, err := gothic.Store.Get(request, sessionKey)
-			if err == nil {
-				sessionValue := session.Values[loginSource.Name]
-				if sessionValue != nil {
-					session := struct {
-						Organizations []string `json:"Organizations"`
-					}{}
-					json.Unmarshal([]byte(sessionValue.(string)), &session)
-					userOrgs = session.Organizations
-				}
-			}
-
-			// The user may be authenticated through jwt using apis
-			// so orgs are cached in memory not in session
-			if len(userOrgs) == 0 {
-				cachedOrgs, err := cache.Get("itsyou.online_" + user.LoginName)
-				if err == nil {
-					orgs, ok := cachedOrgs.([]string)
-					if ok {
-						userOrgs = orgs
-					}
-				}
-			}
-		}
-	}
-	return userOrgs
 }

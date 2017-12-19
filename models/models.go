@@ -119,6 +119,7 @@ func init() {
 		new(RepoIndexerStatus),
 		new(LFSLock),
 		new(IyoCollaboration),
+		new(IyoMembership),
 	)
 
 	gonicNames := []string{"SSL", "UID"}

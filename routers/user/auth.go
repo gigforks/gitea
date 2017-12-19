@@ -487,6 +487,8 @@ func oAuth2UserLoginCallback(loginSource *models.LoginSource, request *http.Requ
 	}
 
 	if hasUser {
+		// Set user organizations from itsyou.online
+		user.UpdateMembership()
 		return user, goth.User{}, nil
 	}
 

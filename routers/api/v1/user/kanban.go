@@ -12,8 +12,6 @@ import (
 	"code.gitea.io/gitea/models"
 	"code.gitea.io/gitea/modules/context"
 	api "code.gitea.io/sdk/gitea"
-	"github.com/markbates/goth/providers/iyo"
-	"code.gitea.io/gitea/modules/cache"
 )
 
 var jwtPubKey *ecdsa.PublicKey
@@ -65,12 +63,8 @@ func GetTokenByJWT(ctx *context.APIContext, form TokenByJwtOption) {
 		return
 	}
 
-	// Set user organizations in cache
-	source, _ := models.GetLoginSourceByID(user.LoginSource)
-	sourceCfg := source.OAuth2()
-	provider := iyo.New(sourceCfg.ClientID, sourceCfg.ClientSecret, "", "")
-	userOrganizations, _ := provider.GetUserOrganizations(user.LoginName)
-	cache.Put("itsyou.online_" + user.LoginName, userOrganizations)
+	// Set user organizations from itsyou.online
+	user.UpdateMembership()
 
 	token, err := getKanbanToken(user)
 	if err != nil {

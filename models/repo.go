@@ -547,19 +547,36 @@ func (repo *Repository) getAssignees(e Engine) (_ []*User, err error) {
 		return nil, err
 	}
 
-	// Leave a seat for owner itself to append later, but if owner is an organization
-	// and just waste 1 unit is cheaper than re-allocate memory once.
-	users := make([]*User, 0, len(accesses)+1)
-	if len(accesses) > 0 {
-		userIDs := make([]int64, len(accesses))
-		for i := 0; i < len(accesses); i++ {
-			userIDs[i] = accesses[i].UserID
-		}
+	userIDs := make([]int64, 0)
 
-		if err = e.In("id", userIDs).Find(&users); err != nil {
-			return nil, err
+	for _, access := range accesses {
+		userIDs = append(userIDs, access.UserID)
+	}
+
+	iyoCollaborations := make([] *IyoCollaboration, 0)
+	err = e.Where("repo_id = ? AND mode >= ?", repo.ID, AccessModeWrite).
+		Find(&iyoCollaborations)
+	if err == nil {
+		for _, iyoCollaboration := range iyoCollaborations {
+			iyoMemberships := make([]*IyoMembership, 0)
+			err = e.Where("organization = ?", iyoCollaboration.OrganizationGlobalId).
+				And("user_id != ?", repo.OwnerID).
+				NotIn("user_id", userIDs).
+				Find(&iyoMemberships)
+			if err == nil {
+				for _, memberShip := range iyoMemberships {
+					userIDs = append(userIDs, memberShip.UserID)
+				}
+			}
 		}
 	}
+
+	users := make([]*User, 0)
+	err = e.In("id", userIDs).Find(&users)
+	if err != nil {
+		return nil, err
+	}
+
 	if !repo.Owner.IsOrganization() {
 		users = append(users, repo.Owner)
 	}

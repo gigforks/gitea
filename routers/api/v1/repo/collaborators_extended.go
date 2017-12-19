@@ -4,7 +4,6 @@ import (
 	"strings"
 
 	"code.gitea.io/gitea/modules/context"
-	"code.gitea.io/gitea/models"
 )
 
 // func DeleteCollaborator(ctx *context.APIContext, form api.AddCollaboratorOption) {
@@ -40,7 +39,7 @@ func SearchOrgs(ctx *context.APIContext) {
 		return
 	}
 	q := ctx.Query("q")
-	userOrgs := models.GetUserOrganizations(ctx.Req.Request, ctx.User)
+	userOrgs := ctx.User.GetUserOrganizations()
 
 	// if organizations are set on the context, try to add them to the response.
 	// else just return the empty list
