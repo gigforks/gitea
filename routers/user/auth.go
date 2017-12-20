@@ -21,8 +21,6 @@ import (
 
 	"github.com/go-macaron/captcha"
 	"github.com/markbates/goth"
-	"github.com/markbates/goth/gothic"
-
 )
 
 const (

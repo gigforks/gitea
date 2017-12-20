@@ -208,7 +208,6 @@ func Profile(ctx *context.Context) {
 				Page:      page,
 				IsProfile: true,
 				PageSize:  setting.UI.User.RepoPagingNum,
-				IyoOrganizations: ctx.User.GetUserOrganizations(),
 			})
 			if err != nil {
 				ctx.Handle(500, "SearchRepositoryByName", err)
