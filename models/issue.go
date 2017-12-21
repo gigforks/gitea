@@ -1111,6 +1111,7 @@ func (opts *IssuesOptions) setupSession(sess *xorm.Session) error {
 	}
 
 	if len(opts.Keyword) > 0{
+		opts.Keyword = strings.Replace(opts.Keyword, " ", "|", -1)
 		sess.And("to_tsvector(name|| '. ' || content) @@ to_tsquery(?)", opts.Keyword)
 	}
 	return nil
@@ -1345,6 +1346,7 @@ func GetUserIssueStats(repoID, uid int64, repoIDs []int64, filterMode int, isPul
 		}
 
 		if len(keyword) > 0{
+			keyword = strings.Replace(keyword, " ", "|", -1)
 			sess.And("to_tsvector(name|| '. ' || content) @@ to_tsquery(?)", keyword)
 		}
 
