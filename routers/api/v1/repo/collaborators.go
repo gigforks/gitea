@@ -41,9 +41,19 @@ func ListCollaborators(ctx *context.APIContext) {
 		ctx.Error(500, "ListCollaborators", err)
 		return
 	}
-	users := make([]*api.User, len(collaborators))
+	iyoCollaborators, err := ctx.Repo.Repository.GetIyoUsersCollaborators()
+	if err != nil {
+		ctx.Error(500, "ListCollaborators", err)
+		return
+	}
+	// Create users slice with length of collaborators + iyoCollaborators to optimize instead of using append
+	users := make([]*api.User, len(collaborators) + len(iyoCollaborators))
 	for i, collaborator := range collaborators {
 		users[i] = collaborator.APIFormat()
+	}
+	offset := len(collaborators)
+	for i, iyoCollaborator := range iyoCollaborators {
+		users[i + offset] = iyoCollaborator.APIFormat()
 	}
 	ctx.JSON(200, users)
 }

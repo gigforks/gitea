@@ -103,6 +103,37 @@ func (repo *Repository) GetCollaborators() ([]*Collaborator, error) {
 	return repo.getCollaborators(x)
 }
 
+func (repo *Repository) getIyoUsersCollaborators(e Engine) ([]*User, error) {
+	var iyoCollaborations [] *IyoCollaboration
+	err := e.Where("repo_id = ? AND mode >= ?", repo.ID, AccessModeWrite).Find(&iyoCollaborations)
+	if err != nil {
+		return nil, err
+	}
+	for _, iyoCollaboration := range iyoCollaborations {
+		var iyoMemberships []*IyoMembership
+		err = e.Where("organization = ?", iyoCollaboration.OrganizationGlobalId).
+			And("user_id != ?", repo.OwnerID).
+			Find(&iyoMemberships)
+		if err != nil {
+			return nil, err
+		}
+		users := make([]*User, len(iyoMemberships))
+		for i, membership := range iyoMemberships {
+			users[i], err = getUserByID(e, membership.UserID)
+			if err != nil {
+				return nil, err
+			}
+		}
+		return users, nil
+	}
+	return nil, err
+}
+
+// GetIyoCollaborators returns the collaborators for a repository
+func (repo *Repository) GetIyoUsersCollaborators() ([]*User, error) {
+	return repo.getIyoUsersCollaborators(x)
+}
+
 func (repo *Repository) isCollaborator(e Engine, userID int64) (bool, error) {
 	return e.Get(&Collaboration{RepoID: repo.ID, UserID: userID})
 }
