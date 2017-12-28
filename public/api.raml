@@ -3061,6 +3061,32 @@ types:
               type: integer
               format: int32
           /comments:
+            get:
+              displayName: issueGetComments
+              description: List all comments on an issue
+              securedBy:
+              - auth
+              queryParameters:
+                id:
+                  required: true
+                  displayName: id
+                  description: index of the issue
+                  type: integer
+                  format: int32
+                string:
+                  required: false
+                  displayName: string
+                  description: if provided, only comments updated since the specified time are returned.
+                  type: string
+              responses:
+                200:
+                  description: Success
+                  body:
+                    application/json:
+                      displayName: response
+                      type: array
+                      items:
+                        type: Comment
             post:
               displayName: issueCreateComment
               description: Add a comment to an issue
@@ -3131,6 +3157,60 @@ types:
                 404:
                   description: APINotFound is a not found empty response
                   body: {}
+            put:
+              displayName: issueReplaceLabels
+              description: Replace an issue's labels
+              body:
+                application/json:
+                  displayName: body
+                  type: IssueLabelsOption
+              securedBy:
+              - auth
+              responses:
+                200:
+                  description: Success
+                  body:
+                    application/json:
+                      displayName: response
+                      type: array
+                      items:
+                        type: Label
+            post:
+              displayName: issueAddLabel
+              description: Add a label to an issue
+              body:
+                application/json:
+                  displayName: body
+                  type: IssueLabelsOption
+              securedBy:
+              - auth
+              responses:
+                200:
+                  description: Success
+                  body:
+                    application/json:
+                      displayName: response
+                      type: array
+                      items:
+                        type: Label
+            delete:
+              displayName: issueClearLabels
+              description: Remove all labels from an issue
+              securedBy:
+              - auth
+            /{id}:
+              uriParameters:
+                id:
+                  required: true
+                  displayName: id
+                  description: id of the label to remove
+                  type: integer
+                  format: int32
+              delete:
+                displayName: issueRemoveLabel
+                description: Remove a label from an issue
+                securedBy:
+                - auth
           /times:
             get:
               displayName: issueTrackedTimes
@@ -3680,95 +3760,6 @@ types:
                     type: array
                     items:
                       type: TrackedTime
-      /issue:
-        /{index}:
-          uriParameters:
-            index:
-              required: true
-              displayName: index
-              type: string
-          /comments:
-            get:
-              displayName: issueGetComments
-              description: List all comments on an issue
-              securedBy:
-              - auth
-              queryParameters:
-                id:
-                  required: true
-                  displayName: id
-                  description: index of the issue
-                  type: integer
-                  format: int32
-                string:
-                  required: false
-                  displayName: string
-                  description: if provided, only comments updated since the specified time are returned.
-                  type: string
-              responses:
-                200:
-                  description: Success
-                  body:
-                    application/json:
-                      displayName: response
-                      type: array
-                      items:
-                        type: Comment
-          /labels:
-            put:
-              displayName: issueReplaceLabels
-              description: Replace an issue's labels
-              body:
-                application/json:
-                  displayName: body
-                  type: IssueLabelsOption
-              securedBy:
-              - auth
-              responses:
-                200:
-                  description: Success
-                  body:
-                    application/json:
-                      displayName: response
-                      type: array
-                      items:
-                        type: Label
-            post:
-              displayName: issueAddLabel
-              description: Add a label to an issue
-              body:
-                application/json:
-                  displayName: body
-                  type: IssueLabelsOption
-              securedBy:
-              - auth
-              responses:
-                200:
-                  description: Success
-                  body:
-                    application/json:
-                      displayName: response
-                      type: array
-                      items:
-                        type: Label
-            delete:
-              displayName: issueClearLabels
-              description: Remove all labels from an issue
-              securedBy:
-              - auth
-            /{id}:
-              uriParameters:
-                id:
-                  required: true
-                  displayName: id
-                  description: id of the label to remove
-                  type: integer
-                  format: int32
-              delete:
-                displayName: issueRemoveLabel
-                description: Remove a label from an issue
-                securedBy:
-                - auth
 /teams:
   /{id}:
     uriParameters:
