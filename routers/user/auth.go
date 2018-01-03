@@ -534,7 +534,6 @@ func LinkAccount(ctx *context.Context) {
 		ctx.Handle(500, "CreateUser", err)
 	}
 	u := &models.User{
-		Name:        email,
 		Email:       email,
 		Passwd:      password,
 		IsActive:    !setting.Service.RegisterEmailConfirm,
@@ -542,6 +541,7 @@ func LinkAccount(ctx *context.Context) {
 		LoginSource: loginSource.ID,
 		LoginName:   gothUser.(goth.User).UserID,
 	}
+	u.Name = u.GetValidNameFromEmail();
 	models.CreateUser(u)
 	log.Trace("Account created: %s", u.Name)
 	// Auto-set admin for the only user.

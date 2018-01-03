@@ -1480,3 +1480,16 @@ func SyncExternalUsers() {
 		}
 	}
 }
+
+// getValidNameFromEmail makes sure that the username created from email isn't duplicated
+func (u *User) GetValidNameFromEmail() (string){
+	users := make([]*User, 0)
+	userName := strings.Split(u.Email, "@")[0]
+	queryStr := fmt.Sprintf("%s@%%", userName)
+	x.Where("email ilike ?", queryStr).Find(&users)
+	fmt.Println(len(users), ">>>>>>>>>>>SZSSSS")
+	if len(users) > 0 {
+		return fmt.Sprintf("%s%d", userName, len(users))
+	}
+	return userName
+}

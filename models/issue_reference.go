@@ -43,7 +43,6 @@ func (issue *Issue) updateRefs(e Engine, commentID int64) (error) {
 	giteaIssueRefs := issue.getGiteaIssuesRefs(e, content)
 	githubIssueRefs := issue.getGithubIssuesRefs(content)
 	allRefIssues := append(giteaIssueRefs, githubIssueRefs...)
-	fmt.Println(allRefIssues)
 
 	// Get the current refs from database to add new refs and delete removed ones
 	currentRefIssues := make([] *IssueReference, 0)
@@ -69,7 +68,6 @@ func (issue *Issue) updateRefs(e Engine, commentID int64) (error) {
 			issueRefsToDelete = append(issueRefsToDelete, currentRefIssue.ID)
 		}
 	}
-	fmt.Println(issueRefsToDelete)
 	_, err = e.In("id", issueRefsToDelete).Delete(new(IssueReference))
 	if err != nil {
 		return err
