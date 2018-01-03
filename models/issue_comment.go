@@ -522,6 +522,10 @@ func CreateComment(opts *CreateCommentOptions) (comment *Comment, err error) {
 	if opts.Type == CommentTypeComment {
 		UpdateIssueIndexer(opts.Issue.ID)
 	}
+	err = comment.updateIssueCommentRefs(x)
+	if err != nil {
+		log.Info("Could not update issues references for comment %d on issue #%d: %s", comment.ID, comment.IssueID, err)
+	}
 	return comment, nil
 }
 
@@ -652,6 +656,10 @@ func UpdateComment(c *Comment) error {
 		return err
 	} else if c.Type == CommentTypeComment {
 		UpdateIssueIndexer(c.IssueID)
+		err = c.updateIssueCommentRefs(x)
+		if err != nil {
+			log.Info("Could not update issues references for comment %d on issue #%d: %s", c.ID, c.IssueID, err)
+		}
 	}
 	return nil
 }
@@ -683,6 +691,10 @@ func DeleteComment(comment *Comment) error {
 		return err
 	} else if comment.Type == CommentTypeComment {
 		UpdateIssueIndexer(comment.IssueID)
+		err = comment.DeleteIssueCommentRefs(x)
+		if err != nil {
+			log.Info("Could not delete issues references for comment %d on issue #%d: %s", comment.ID, comment.IssueID, err)
+		}
 	}
 	return nil
 }

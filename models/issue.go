@@ -749,7 +749,10 @@ func (issue *Issue) ChangeContent(doer *User, content string) (err error) {
 	} else {
 		go HookQueue.Add(issue.RepoID)
 	}
-
+	err = issue.updateIssueRefs(x)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -865,6 +868,10 @@ func newIssue(e *xorm.Session, doer *User, opts NewIssueOptions) (err error) {
 	} else {
 		_, err = e.Exec("UPDATE `repository` SET num_issues = num_issues + 1 WHERE id = ?", opts.Issue.RepoID)
 	}
+	if err != nil {
+		return err
+	}
+	err = opts.Issue.updateIssueRefs(x)
 	if err != nil {
 		return err
 	}
