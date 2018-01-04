@@ -531,6 +531,16 @@ func (u *User) GetOrgRepositoryIDs() ([]int64, error) {
 		GroupBy("repository.id").Find(&ids)
 }
 
+// GetIyoRepositoryIDs returns repositories IDs where user has access to it through IYO
+func (u *User) GetIyoRepositoryIDs() ([]int64, error) {
+	var ids []int64
+	userGroups := u.GetUserOrganizations()
+	return ids, x.Table("iyo_collaboration").
+		Cols("repo_id").
+		In("organization_global_id", userGroups).
+		GroupBy("repo_id").Find(&ids)
+}
+
 // GetAccessRepoIDs returns all repositories IDs where user's or user is a team member organizations
 func (u *User) GetAccessRepoIDs() ([]int64, error) {
 	ids, err := u.GetRepositoryIDs()
@@ -541,7 +551,13 @@ func (u *User) GetAccessRepoIDs() ([]int64, error) {
 	if err != nil {
 		return nil, err
 	}
-	return append(ids, ids2...), nil
+	ids3, err := u.GetIyoRepositoryIDs()
+	if err != nil {
+		return nil, err
+	}
+	ids = append(ids, ids2...)
+	ids = append(ids, ids3...)
+	return ids, nil
 }
 
 // GetMirrorRepositories returns mirror repositories that user owns, including private repositories.
