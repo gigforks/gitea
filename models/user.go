@@ -532,12 +532,13 @@ func (u *User) GetOrgRepositoryIDs() ([]int64, error) {
 }
 
 // GetIyoRepositoryIDs returns repositories IDs where user has access to it through IYO
-func (u *User) GetIyoRepositoryIDs() ([]int64, error) {
+func (u *User) GetIyoRepositoryIDs(excludeIds []int64) ([]int64, error) {
 	var ids []int64
 	userGroups := u.GetUserOrganizations()
 	return ids, x.Table("iyo_collaboration").
 		Cols("repo_id").
 		In("organization_global_id", userGroups).
+		NotIn("repo_id", ids).
 		GroupBy("repo_id").Find(&ids)
 }
 
@@ -551,11 +552,11 @@ func (u *User) GetAccessRepoIDs() ([]int64, error) {
 	if err != nil {
 		return nil, err
 	}
-	ids3, err := u.GetIyoRepositoryIDs()
+	ids = append(ids, ids2...)
+	ids3, err := u.GetIyoRepositoryIDs(ids)
 	if err != nil {
 		return nil, err
 	}
-	ids = append(ids, ids2...)
 	ids = append(ids, ids3...)
 	return ids, nil
 }
