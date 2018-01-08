@@ -12,6 +12,8 @@ import (
 	"code.gitea.io/gitea/modules/highlight"
 	"code.gitea.io/gitea/modules/indexer"
 	"code.gitea.io/gitea/modules/util"
+	"code.gitea.io/gitea/models"
+	"fmt"
 )
 
 // Result a search result to display
@@ -20,6 +22,7 @@ type Result struct {
 	HighlightClass string
 	LineNumbers    []int
 	FormattedLines gotemplate.HTML
+	FileURL 	   string
 }
 
 func indices(content string, selectionStartIndex, selectionEndIndex int) (int, int) {
@@ -96,11 +99,22 @@ func searchResult(result *indexer.RepoSearchResult, startIndex, endIndex int) (*
 		lineNumbers[i] = startLineNum + i
 		index += len(line)
 	}
+	var (
+		fileUrl string
+	)
+	if result.RepoID > 0 {
+		repo, err := models.GetRepositoryByID(int64(result.RepoID))
+		if err != nil {
+			return nil, err
+		}
+		fileUrl = fmt.Sprintf("%s/src/branch/%s/%s", repo.HTMLURL(), repo.DefaultBranch, result.Filename)
+	}
 	return &Result{
 		Filename:       result.Filename,
 		HighlightClass: highlight.FileNameToHighlightClass(result.Filename),
 		LineNumbers:    lineNumbers,
 		FormattedLines: gotemplate.HTML(formattedLinesBuffer.String()),
+		FileURL:        fileUrl,
 	}, nil
 }
 
@@ -118,6 +132,40 @@ func PerformSearch(repoID int64, keyword string, page, pageSize int) (int, []*Re
 	displayResults := make([]*Result, len(results))
 
 	for i, result := range results {
+		startIndex, endIndex := indices(result.Content, result.StartIndex, result.EndIndex)
+		displayResults[i], err = searchResult(result, startIndex, endIndex)
+		if err != nil {
+			return 0, nil, err
+		}
+	}
+	return int(total), displayResults, nil
+}
+
+// PerformReposSearch perform a search on all repositories that user can access
+func PerformReposSearch(uid int64, keyword string, page, pageSize int) (int, []*Result, error) {
+	if len(keyword) == 0 {
+		return 0, nil, nil
+	}
+
+	total, results, err := indexer.SearchReposByKeyword(keyword, page, pageSize)
+	if err != nil {
+		return 0, nil, err
+	}
+
+	displayResults := make([]*Result, len(results))
+
+	for i, result := range results {
+		repo, err := models.GetRepositoryByID(int64(result.RepoID))
+		if err != nil {
+			return 0, nil, err
+		}
+		ok, err := models.HasAccess(uid, repo, models.AccessModeRead)
+		if err != nil {
+			return 0, nil, err
+		}
+		if !ok {
+			continue
+		}
 		startIndex, endIndex := indices(result.Content, result.StartIndex, result.EndIndex)
 		displayResults[i], err = searchResult(result, startIndex, endIndex)
 		if err != nil {

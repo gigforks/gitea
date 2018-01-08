@@ -152,6 +152,7 @@ type RepoSearchResult struct {
 	EndIndex   int
 	Filename   string
 	Content    string
+	RepoID 	   float64
 }
 
 // SearchRepoByKeyword searches for files in the specified repo.
@@ -193,6 +194,49 @@ func SearchRepoByKeyword(repoID int64, keyword string, page, pageSize int) (int6
 			EndIndex:   endIndex,
 			Filename:   filenameOfIndexerID(hit.ID),
 			Content:    hit.Fields["Content"].(string),
+		}
+	}
+	return int64(result.Total), searchResults, nil
+}
+
+func SearchReposByKeyword(keyword string, page, pageSize int) (int64, []*RepoSearchResult, error) {
+	phraseQuery := bleve.NewMatchPhraseQuery(keyword)
+	phraseQuery.FieldVal = "Content"
+	phraseQuery.Analyzer = repoIndexerAnalyzer
+
+	from := (page - 1) * pageSize
+	searchRequest := bleve.NewSearchRequestOptions(phraseQuery, pageSize, from, false)
+	searchRequest.Fields = []string{"Content", "RepoID"}
+	searchRequest.IncludeLocations = true
+
+	result, err := repoIndexer.Search(searchRequest)
+	if err != nil {
+		return 0, nil, err
+	}
+
+	searchResults := make([]*RepoSearchResult, len(result.Hits))
+	for i, hit := range result.Hits {
+		var startIndex, endIndex int = -1, -1
+		for _, locations := range hit.Locations["Content"] {
+			location := locations[0]
+			locationStart := int(location.Start)
+			locationEnd := int(location.End)
+			if startIndex < 0 || locationStart < startIndex {
+				startIndex = locationStart
+			}
+			if endIndex < 0 || locationEnd > endIndex {
+				endIndex = locationEnd
+			}
+		}
+		if err != nil {
+			return 0, nil, err
+		}
+		searchResults[i] = &RepoSearchResult{
+			StartIndex: startIndex,
+			EndIndex:   endIndex,
+			Filename:   filenameOfIndexerID(hit.ID),
+			Content:    hit.Fields["Content"].(string),
+			RepoID:     hit.Fields["RepoID"].(float64),
 		}
 	}
 	return int64(result.Total), searchResults, nil

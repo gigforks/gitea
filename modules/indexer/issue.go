@@ -130,3 +130,28 @@ func SearchIssuesByKeyword(repoID int64, keyword string) ([]int64, error) {
 	}
 	return issueIDs, nil
 }
+
+// SearchAllIssuesByKeyword searches for issues by given conditions.
+// Returns the matching issue IDs
+func SearchAllIssuesByKeyword(keyword string) ([]int64, error) {
+	indexerQuery := bleve.NewDisjunctionQuery(
+		newMatchPhraseQuery(keyword, "Title", issueIndexerAnalyzer),
+		newMatchPhraseQuery(keyword, "Content", issueIndexerAnalyzer),
+		newMatchPhraseQuery(keyword, "Comments", issueIndexerAnalyzer),
+	)
+	search := bleve.NewSearchRequestOptions(indexerQuery, 2147483647, 0, false)
+
+	result, err := issueIndexer.Search(search)
+	if err != nil {
+		return nil, err
+	}
+
+	issueIDs := make([]int64, len(result.Hits))
+	for i, hit := range result.Hits {
+		issueIDs[i], err = idOfIndexerID(hit.ID)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return issueIDs, nil
+}
