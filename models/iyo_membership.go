@@ -1,8 +1,6 @@
 package models
 
-import (
-	"github.com/markbates/goth/providers/iyo"
-)
+import "code.gitea.io/gitea/modules/auth/iyo"
 
 type IyoMembership struct {
 	ID           int64      `xorm:"pk autoincr"`

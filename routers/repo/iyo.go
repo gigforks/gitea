@@ -6,7 +6,7 @@ import (
 	"code.gitea.io/gitea/models"
 	"code.gitea.io/gitea/modules/context"
 	"code.gitea.io/gitea/modules/log"
-	"github.com/markbates/goth/providers/iyo"
+	"code.gitea.io/gitea/modules/auth/iyo"
 )
 
 // CollaborationOrgPost adds a collaboration between an Itsyou.Online organization

@@ -24,7 +24,7 @@ import (
 	"github.com/markbates/goth/providers/gplus"
 	"github.com/markbates/goth/providers/openidConnect"
 	"github.com/markbates/goth/providers/twitter"
-	"github.com/markbates/goth/providers/iyo"
+	"code.gitea.io/gitea/modules/auth/iyo"
 	"github.com/satori/go.uuid"
 )
 
