@@ -175,13 +175,12 @@ func (c *Config) PasswordCredentialsToken(ctx context.Context, username, passwor
 //
 // The code will be in the *http.Request.FormValue("code"). Before
 // calling Exchange, be sure to validate FormValue("state").
-func (c *Config) Exchange(ctx context.Context, values ...string) (*Token, error) {
+func (c *Config) Exchange(ctx context.Context, code string) (*Token, error) {
 	return retrieveToken(ctx, c, url.Values{
 		"grant_type":   {"authorization_code"},
-		"code":         {values[0]},
+		"code":         {code},
 		"redirect_uri": internal.CondVal(c.RedirectURL),
 		"scope":        internal.CondVal(strings.Join(c.Scopes, " ")),
-		"state":	{values[1]},
 	})
 }
 
