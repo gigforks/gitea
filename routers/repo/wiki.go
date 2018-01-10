@@ -57,7 +57,7 @@ func findEntryForFile(commit *git.Commit, target string) (*git.TreeEntry, error)
 		return nil, err
 	}
 	for _, entry := range entries {
-		if entry.Type == git.ObjectBlob && entry.Name() == target {
+		if entry.Type == git.ObjectBlob && (entry.Name() == target || entry.Name() == strings.Replace(target, "-", " ", -1)) {
 			return entry, nil
 		}
 	}
