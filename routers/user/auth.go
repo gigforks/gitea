@@ -528,6 +528,11 @@ func LinkAccount(ctx *context.Context) {
 	}
 
 	email := gothUser.(goth.User).Email
+	if email == "" {
+		ctx.Data["Err_Email"] = ctx.Tr("form.iyo_email_empty")
+		ctx.HTML(200, tplLinkAccount)
+		return
+	}
 	password, _ := base.GetRandomString(10)
 	loginSource, err := models.GetActiveOAuth2LoginSourceByName(gothUser.(goth.User).Provider)
 	if err != nil {

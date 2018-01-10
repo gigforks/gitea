@@ -1504,7 +1504,6 @@ func (u *User) GetValidNameFromEmail() (string){
 	userName := strings.Split(u.Email, "@")[0]
 	queryStr := fmt.Sprintf("%s@%%", userName)
 	x.Where("email ilike ?", queryStr).Find(&users)
-	fmt.Println(len(users), ">>>>>>>>>>>SZSSSS")
 	if len(users) > 0 {
 		return fmt.Sprintf("%s%d", userName, len(users))
 	}

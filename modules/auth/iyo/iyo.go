@@ -134,7 +134,9 @@ func userFromReader(reader io.Reader, user *goth.User) error {
 		return err
 	}
 	user.UserID = u.UserName
-	user.Email = u.EmailAddresses[0].EmailAddress
+	if len(u.EmailAddresses) > 0 {
+		user.Email = u.EmailAddresses[0].EmailAddress
+	}
 	return err
 }
 
