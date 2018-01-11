@@ -157,6 +157,7 @@ func (issue *Issue) getGiteaIssuesRefs(e Engine, content string) ([] IssueRefere
 			}
 			title = giteaIssue.Title
 		} else {
+			issue.loadAttributes(e)
 			issue.Repo.getOwner(e)
 			ownerName = issue.Repo.Owner.LowerName
 			repoName = issue.Repo.Name
@@ -243,7 +244,7 @@ func (issue *Issue) GetRefIssues() ([] *IssueReference) {
 			filteredRefIssues = append(filteredRefIssues, currentRefIssue)
 		}
 	}
-	return currentRefIssues
+	return filteredRefIssues
 }
 
 // Compare two issueReferences
