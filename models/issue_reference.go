@@ -146,7 +146,7 @@ func (issue *Issue) getGiteaIssuesRefs(e Engine, content string) ([] IssueRefere
 		if len(repoFullName) > 0 {
 			fullName := strings.Split(repoFullName, "/")
 			ownerName, repoName = fullName[0], fullName[1]
-			url += "/" + repoFullName + "/"
+			url += "/" + repoFullName + "/issues/"
 			repository, err := GetRepositoryByOwnerAndName(ownerName, repoName)
 			if err != nil {
 				continue
