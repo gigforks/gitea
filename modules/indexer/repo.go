@@ -199,13 +199,20 @@ func SearchRepoByKeyword(repoID int64, keyword string, page, pageSize int) (int6
 	return int64(result.Total), searchResults, nil
 }
 
-func SearchReposByKeyword(keyword string, page, pageSize int) (int64, []*RepoSearchResult, error) {
+func SearchReposByKeyword(reposIds []int64, keyword string, page, pageSize int) (int64, []*RepoSearchResult, error) {
 	phraseQuery := bleve.NewMatchPhraseQuery(keyword)
 	phraseQuery.FieldVal = "Content"
 	phraseQuery.Analyzer = repoIndexerAnalyzer
 
 	from := (page - 1) * pageSize
-	searchRequest := bleve.NewSearchRequestOptions(phraseQuery, pageSize, from, false)
+	indexerQuery := bleve.NewDisjunctionQuery()
+	for _, repoID := range reposIds {
+		indexerQuery.AddQuery(bleve.NewConjunctionQuery(
+			numericEqualityQuery(repoID, "RepoID"),
+			phraseQuery,
+		))
+	}
+	searchRequest := bleve.NewSearchRequestOptions(indexerQuery, pageSize, from, false)
 	searchRequest.Fields = []string{"Content", "RepoID"}
 	searchRequest.IncludeLocations = true
 

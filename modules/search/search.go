@@ -142,12 +142,12 @@ func PerformSearch(repoID int64, keyword string, page, pageSize int) (int, []*Re
 }
 
 // PerformReposSearch perform a search on all repositories that user can access
-func PerformReposSearch(uid int64, keyword string, page, pageSize int) (int, []*Result, error) {
+func PerformReposSearch(reposIds []int64, keyword string, page, pageSize int) (int, []*Result, error) {
 	if len(keyword) == 0 {
 		return 0, nil, nil
 	}
 
-	total, results, err := indexer.SearchReposByKeyword(keyword, page, pageSize)
+	total, results, err := indexer.SearchReposByKeyword(reposIds, keyword, page, pageSize)
 	if err != nil {
 		return 0, nil, err
 	}
@@ -155,17 +155,6 @@ func PerformReposSearch(uid int64, keyword string, page, pageSize int) (int, []*
 	displayResults := make([]*Result, len(results))
 
 	for i, result := range results {
-		repo, err := models.GetRepositoryByID(int64(result.RepoID))
-		if err != nil {
-			return 0, nil, err
-		}
-		ok, err := models.HasAccess(uid, repo, models.AccessModeRead)
-		if err != nil {
-			return 0, nil, err
-		}
-		if !ok {
-			continue
-		}
 		startIndex, endIndex := indices(result.Content, result.StartIndex, result.EndIndex)
 		displayResults[i], err = searchResult(result, startIndex, endIndex)
 		if err != nil {

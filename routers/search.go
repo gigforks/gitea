@@ -32,7 +32,7 @@ type SearchResults struct {
 	Repositories  []*models.Repository
 	Organizations []*models.User
 	Code          []*search.Result
-	Issues        []*IssueResult
+	Issues        []*models.Issue
 	Users         []*models.User
 }
 
@@ -73,7 +73,7 @@ func SearchAll(ctx *context.Context) {
 		Keyword: keyword,
 		IyoOrganizations: ctx.User.GetUserOrganizations(),
 		Page: page,
-		PageSize:  setting.UI.ExplorePagingNum,
+		PageSize:  setting.UI.IssuePagingNum,
 		OrderBy:   models.SearchOrderByRecentUpdated,
 		Private:   true,
 	})
@@ -86,7 +86,7 @@ func SearchAll(ctx *context.Context) {
 	searchResults.Users, searchStats.UsersCount, err = models.SearchUsers(&models.SearchUserOptions{
 		Keyword: keyword,
 		Type:     models.UserTypeIndividual,
-		PageSize: setting.UI.ExplorePagingNum,
+		PageSize: setting.UI.IssuePagingNum,
 		IsActive: util.OptionalBoolTrue,
 		Page: page,
 	})
@@ -99,7 +99,7 @@ func SearchAll(ctx *context.Context) {
 	searchResults.Organizations, searchStats.OrganizationsCount, err = models.SearchUsers(&models.SearchUserOptions{
 		Keyword: keyword,
 		Type:     models.UserTypeOrganization,
-		PageSize: setting.UI.ExplorePagingNum,
+		PageSize: setting.UI.IssuePagingNum,
 		IsActive: util.OptionalBoolTrue,
 		Page: page,
 	})
@@ -109,36 +109,25 @@ func SearchAll(ctx *context.Context) {
 	}
 
 	// Search for code in all accessed repos
-	searchStats.CodeCount, searchResults.Code, err = search.PerformReposSearch(ctx.User.ID, keyword, page, setting.UI.ExplorePagingNum)
+	reposIds, err := models.GetAccessibleRepositories(ctx.User)
+	if err != nil {
+		ctx.Handle(500, "SearchAll", err)
+		return
+	}
+	searchStats.CodeCount, searchResults.Code, err = search.PerformReposSearch(reposIds, keyword, page, setting.UI.IssuePagingNum)
 	if err != nil {
 		ctx.Handle(500, "SearchAll", err)
 		return
 	}
 
 	// Search for issues in all accessed repos
-	//TODO Tune search issues to use real pagination
-	issueIDs, err := indexer.SearchAllIssuesByKeyword(keyword)
-	issues, err := models.GetIssuesByIDs(issueIDs)
-	if err != nil {
-		ctx.Handle(500, "SearchAll", err)
-		return
-	}
-	for _, issue := range issues {
-		issue.LoadAttributes()
-		ok, err := models.HasAccess(ctx.User.ID, issue.Repo, models.AccessModeRead)
-		if err!=nil {
-			ctx.Handle(500, "SearchAll", err)
-			return
-		}
-		if !ok {
-			continue
-		}
-		searchResults.Issues = append(searchResults.Issues, &IssueResult{
-			issue,
-			issue.HTMLURL(),
-		})
-	}
-	searchStats.IssuesCount = int64(len(searchResults.Issues))
+	var issueIDs []int64
+	searchStats.IssuesCount, issueIDs, err = indexer.SearchReposIssuesByKeyword(reposIds, keyword)
+	searchResults.Issues, err = models.Issues(&models.IssuesOptions{
+		Page:        page,
+		PageSize:    setting.UI.IssuePagingNum,
+		IssueIDs:    issueIDs,
+	})
 
 	if viewType == "repositories" {
 		total = searchStats.RepositoriesCount
