@@ -69,6 +69,7 @@ func SearchAll(ctx *context.Context) {
 
 	// Search for repositories
 	searchResults.Repositories, searchStats.RepositoriesCount, err = models.SearchRepositoryByName(&models.SearchRepoOptions{
+		OwnerID: ctx.User.ID,
 		Keyword: keyword,
 		IyoOrganizations: ctx.User.GetUserOrganizations(),
 		Page: page,
