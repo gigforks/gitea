@@ -123,11 +123,17 @@ func SearchAll(ctx *context.Context) {
 	// Search for issues in all accessed repos
 	var issueIDs []int64
 	searchStats.IssuesCount, issueIDs, err = indexer.SearchReposIssuesByKeyword(reposIds, keyword)
-	searchResults.Issues, err = models.Issues(&models.IssuesOptions{
-		Page:        page,
-		PageSize:    setting.UI.IssuePagingNum,
-		IssueIDs:    issueIDs,
-	})
+	if len(issueIDs) > 0 {
+		searchResults.Issues, err = models.Issues(&models.IssuesOptions{
+			Page:        page,
+			PageSize:    setting.UI.IssuePagingNum,
+			IssueIDs:    issueIDs,
+		})
+		if err != nil {
+			ctx.Handle(500, "SearchAll", err)
+			return
+		}
+	}
 
 	if viewType == "repositories" {
 		total = searchStats.RepositoriesCount
