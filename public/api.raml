@@ -7,8 +7,19 @@ documentation:
 - title: Gitea API.
   content: This documentation describes the Gitea API.
 securitySchemes:
-  auth:
+  basicauth:
     type: Basic Authentication
+  token:
+    type: Pass Through
+    describedBy:
+      headers:
+        Authorization:
+          description: your access token from gitea preceeded by the word token i.e "token ACCESS_TOKEN"
+      queryParameters:
+        access_token:
+          description: your access token
+        token:
+          description: your access token
 types:
   AddCollaboratorOption:
     displayName: AddCollaboratorOption
