@@ -1688,7 +1688,8 @@ types:
         displayName: body
         type: MarkdownOption
     securedBy:
-    - auth
+    - basicauth
+    - token
     responses:
       422:
         description: APIValidationError is error format response related to input validation
@@ -1702,7 +1703,8 @@ types:
           displayName: body
           type: string
       securedBy:
-      - auth
+      - basicauth
+      - token
       responses:
         422:
           description: APIValidationError is error format response related to input validation
@@ -1723,7 +1725,8 @@ types:
           displayName: body
           type: CreateRepoOption
       securedBy:
-      - auth
+      - basicauth
+      - token
       responses:
         201:
           description: Success
@@ -1751,7 +1754,8 @@ types:
       displayName: repoGetByID
       description: Get a repository by id
       securedBy:
-      - auth
+      - basicauth
+      - token
       responses:
         200:
           description: Success
@@ -1764,7 +1768,8 @@ types:
     displayName: userGetCurrent
     description: Get the authenticated user
     securedBy:
-    - auth
+    - basicauth
+    - token
     responses:
       200:
         description: Success
@@ -1777,7 +1782,8 @@ types:
       displayName: userListEmails
       description: List the authenticated user's email addresses
       securedBy:
-      - auth
+      - basicauth
+      - token
       responses:
         200:
           description: Success
@@ -1795,7 +1801,8 @@ types:
           displayName: body
           type: CreateEmailOption
       securedBy:
-      - auth
+      - basicauth
+      - token
       responses:
         201:
           description: Success
@@ -1813,13 +1820,15 @@ types:
           displayName: body
           type: DeleteEmailOption
       securedBy:
-      - auth
+      - basicauth
+      - token
   /followers:
     get:
       displayName: userCurrentListFollowers
       description: List the authenticated user's followers
       securedBy:
-      - auth
+      - basicauth
+      - token
       responses:
         200:
           description: Success
@@ -1834,7 +1843,8 @@ types:
       displayName: userCurrentListFollowing
       description: List the users that the authenticated user is following
       securedBy:
-      - auth
+      - basicauth
+      - token
       responses:
         200:
           description: Success
@@ -1855,7 +1865,8 @@ types:
         displayName: userCurrentCheckFollowing
         description: Check whether a user is followed by the authenticated user
         securedBy:
-        - auth
+        - basicauth
+        - token
         responses:
           404:
             description: APINotFound is a not found empty response
@@ -1871,18 +1882,21 @@ types:
         displayName: userCurrentPutFollow
         description: Follow a user
         securedBy:
-        - auth
+        - basicauth
+        - token
       delete:
         displayName: userCurrentDeleteFollow
         description: Unfollow a user
         securedBy:
-        - auth
+        - basicauth
+        - token
   /gpg_keys:
     get:
       displayName: userCurrentListGPGKeys
       description: List the authenticated user's GPG keys
       securedBy:
-      - auth
+      - basicauth
+      - token
       responses:
         200:
           description: Success
@@ -1900,7 +1914,8 @@ types:
           displayName: Form
           type: CreateGPGKeyOption
       securedBy:
-      - auth
+      - basicauth
+      - token
       responses:
         201:
           description: Success
@@ -1923,7 +1938,8 @@ types:
         displayName: userCurrentGetGPGKey
         description: Get a GPG key
         securedBy:
-        - auth
+        - basicauth
+        - token
         responses:
           200:
             description: Success
@@ -1938,7 +1954,8 @@ types:
         displayName: userCurrentDeleteGPGKey
         description: Remove a GPG key
         securedBy:
-        - auth
+        - basicauth
+        - token
         responses:
           403:
             description: APIForbiddenError is a forbidden error response
@@ -1948,7 +1965,8 @@ types:
       displayName: userCurrentListKeys
       description: List the authenticated user's public keys
       securedBy:
-      - auth
+      - basicauth
+      - token
       responses:
         200:
           description: Success
@@ -1966,7 +1984,8 @@ types:
           displayName: body
           type: CreateKeyOption
       securedBy:
-      - auth
+      - basicauth
+      - token
       responses:
         201:
           description: Success
@@ -1989,7 +2008,8 @@ types:
         displayName: userCurrentGetKey
         description: Get a public key
         securedBy:
-        - auth
+        - basicauth
+        - token
         responses:
           200:
             description: Success
@@ -2004,7 +2024,8 @@ types:
         displayName: userCurrentDeleteKey
         description: Delete a public key
         securedBy:
-        - auth
+        - basicauth
+        - token
         responses:
           403:
             description: APIForbiddenError is a forbidden error response
@@ -2017,7 +2038,8 @@ types:
       displayName: orgListCurrentUserOrgs
       description: List the current user's organizations
       securedBy:
-      - auth
+      - basicauth
+      - token
       responses:
         200:
           description: Success
@@ -2032,7 +2054,8 @@ types:
       displayName: userCurrentListRepos
       description: List the repos that the authenticated user owns or has access to
       securedBy:
-      - auth
+      - basicauth
+      - token
       responses:
         200:
           description: Success
@@ -2050,7 +2073,8 @@ types:
           displayName: body
           type: CreateRepoOption
       securedBy:
-      - auth
+      - basicauth
+      - token
       responses:
         201:
           description: Success
@@ -2063,7 +2087,8 @@ types:
       displayName: userCurrentListStarred
       description: The repos that the authenticated user has starred
       securedBy:
-      - auth
+      - basicauth
+      - token
       responses:
         200:
           description: Success
@@ -2089,7 +2114,8 @@ types:
         displayName: userCurrentCheckStarring
         description: Whether the authenticated is starring the repo
         securedBy:
-        - auth
+        - basicauth
+        - token
         responses:
           404:
             description: APINotFound is a not found empty response
@@ -2098,18 +2124,21 @@ types:
         displayName: userCurrentPutStar
         description: Star the given repo
         securedBy:
-        - auth
+        - basicauth
+        - token
       delete:
         displayName: userCurrentDeleteStar
         description: Unstar the given repo
         securedBy:
-        - auth
+        - basicauth
+        - token
   /subscriptions:
     get:
       displayName: userCurrentListSubscriptions
       description: List repositories watched by the authenticated user
       securedBy:
-      - auth
+      - basicauth
+      - token
       responses:
         200:
           description: Success
@@ -2124,7 +2153,8 @@ types:
       displayName: userCurrentTrackedTimes
       description: List the current user's tracked times
       securedBy:
-      - auth
+      - basicauth
+      - token
       responses:
         200:
           description: Success
@@ -2145,7 +2175,8 @@ types:
       displayName: orgListUserOrgs
       description: List a user's organizations
       securedBy:
-      - auth
+      - basicauth
+      - token
       responses:
         200:
           description: Success
@@ -2160,7 +2191,8 @@ types:
     displayName: getVersion
     description: Returns the version of the Gitea application
     securedBy:
-    - auth
+    - basicauth
+    - token
     responses:
       200:
         description: Success
@@ -2178,7 +2210,8 @@ types:
           displayName: body
           type: CreateUserOption
       securedBy:
-      - auth
+      - basicauth
+      - token
       responses:
         201:
           description: Success
@@ -2207,7 +2240,8 @@ types:
             displayName: body
             type: EditUserOption
         securedBy:
-        - auth
+        - basicauth
+        - token
         responses:
           200:
             description: Success
@@ -2225,7 +2259,8 @@ types:
         displayName: adminDeleteUser
         description: Delete a user
         securedBy:
-        - auth
+        - basicauth
+        - token
         responses:
           403:
             description: APIForbiddenError is a forbidden error response
@@ -2238,7 +2273,8 @@ types:
           displayName: adminCreatePublicKey
           description: Add a public key on behalf of a user
           securedBy:
-          - auth
+          - basicauth
+          - token
           responses:
             201:
               description: Success
@@ -2264,7 +2300,8 @@ types:
             displayName: adminDeleteUserPublicKey
             description: Delete a user's public key
             securedBy:
-            - auth
+            - basicauth
+            - token
             responses:
               403:
                 description: APIForbiddenError is a forbidden error response
@@ -2277,7 +2314,8 @@ types:
           displayName: adminCreateOrg
           description: Create an organization
           securedBy:
-          - auth
+          - basicauth
+          - token
           responses:
             201:
               description: Success
@@ -2296,7 +2334,8 @@ types:
           displayName: adminCreateRepo
           description: Create a repository on behalf a user
           securedBy:
-          - auth
+          - basicauth
+          - token
           responses:
             201:
               description: Success
@@ -2322,7 +2361,8 @@ types:
       displayName: orgGet
       description: Get an organization
       securedBy:
-      - auth
+      - basicauth
+      - token
       responses:
         200:
           description: Success
@@ -2338,7 +2378,8 @@ types:
           displayName: body
           type: EditOrgOption
       securedBy:
-      - auth
+      - basicauth
+      - token
       responses:
         200:
           description: Success
@@ -2351,7 +2392,8 @@ types:
         displayName: orgListHooks
         description: List an organization's webhooks
         securedBy:
-        - auth
+        - basicauth
+        - token
         responses:
           200:
             description: Success
@@ -2366,7 +2408,8 @@ types:
           displayName: orgCreateHook
           description: Create a hook
           securedBy:
-          - auth
+          - basicauth
+          - token
           responses:
             201:
               description: Success
@@ -2386,7 +2429,8 @@ types:
           displayName: orgGetHook
           description: Get a hook
           securedBy:
-          - auth
+          - basicauth
+          - token
           responses:
             200:
               description: Success
@@ -2400,7 +2444,8 @@ types:
           displayName: orgEditHook
           description: Update a hook
           securedBy:
-          - auth
+          - basicauth
+          - token
           responses:
             200:
               description: Success
@@ -2414,13 +2459,15 @@ types:
           displayName: orgDeleteHook
           description: Delete a hook
           securedBy:
-          - auth
+          - basicauth
+          - token
     /members:
       get:
         displayName: orgListMembers
         description: List an organization's members
         securedBy:
-        - auth
+        - basicauth
+        - token
         responses:
           200:
             description: Success
@@ -2441,7 +2488,8 @@ types:
           displayName: orgIsMember
           description: Check if a user is a member of an organization
           securedBy:
-          - auth
+          - basicauth
+          - token
           responses:
             204:
               description: user is a member
@@ -2457,7 +2505,8 @@ types:
           displayName: orgDeleteMember
           description: Remove a member from an organization
           securedBy:
-          - auth
+          - basicauth
+          - token
           responses:
             204:
               description: member removed
@@ -2471,7 +2520,8 @@ types:
         displayName: orgListPublicMembers
         description: List an organization's public members
         securedBy:
-        - auth
+        - basicauth
+        - token
         responses:
           200:
             description: Success
@@ -2492,7 +2542,8 @@ types:
           displayName: orgIsPublicMember
           description: Check if a user is a public member of an organization
           securedBy:
-          - auth
+          - basicauth
+          - token
           responses:
             204:
               description: user is a public member
@@ -2508,7 +2559,8 @@ types:
           displayName: orgPublicizeMember
           description: Publicize a user's membership
           securedBy:
-          - auth
+          - basicauth
+          - token
           responses:
             204:
               description: membership publicized
@@ -2521,13 +2573,15 @@ types:
           displayName: orgConcealMember
           description: Conceal a user's membership
           securedBy:
-          - auth
+          - basicauth
+          - token
     /repos:
       get:
         displayName: orgListRepos
         description: List an organization's repos
         securedBy:
-        - auth
+        - basicauth
+        - token
         responses:
           200:
             description: Success
@@ -2542,7 +2596,8 @@ types:
         displayName: orgListTeams
         description: List an organization's teams
         securedBy:
-        - auth
+        - basicauth
+        - token
         responses:
           200:
             description: Success
@@ -2560,7 +2615,8 @@ types:
             displayName: body
             type: CreateTeamOption
         securedBy:
-        - auth
+        - basicauth
+        - token
         responses:
           201:
             description: Success
@@ -2578,7 +2634,8 @@ types:
           displayName: body
           type: MigrateRepoForm
       securedBy:
-      - auth
+      - basicauth
+      - token
       responses:
         201:
           description: Success
@@ -2591,7 +2648,8 @@ types:
       displayName: repoSearch
       description: Search for repositories
       securedBy:
-      - auth
+      - basicauth
+      - token
       queryParameters:
         q:
           required: false
@@ -2657,7 +2715,8 @@ types:
       displayName: repoDeleteHook
       description: Delete a hook in a repository
       securedBy:
-      - auth
+      - basicauth
+      - token
       queryParameters:
         owner:
           required: true
@@ -2686,7 +2745,8 @@ types:
         displayName: repoGet
         description: Get a repository
         securedBy:
-        - auth
+        - basicauth
+        - token
         responses:
           200:
             description: Success
@@ -2698,7 +2758,8 @@ types:
         displayName: repoDelete
         description: Delete a repository
         securedBy:
-        - auth
+        - basicauth
+        - token
         responses:
           403:
             description: APIForbiddenError is a forbidden error response
@@ -2713,7 +2774,8 @@ types:
           displayName: repoGetArchive
           description: Get an archive of a repository
           securedBy:
-          - auth
+          - basicauth
+          - token
           queryParameters:
             archive:
               required: true
@@ -2725,7 +2787,8 @@ types:
           displayName: repoListBranches
           description: List a repository's branches
           securedBy:
-          - auth
+          - basicauth
+          - token
           responses:
             200:
               description: Success
@@ -2746,7 +2809,8 @@ types:
             displayName: repoGetBranch
             description: List a repository's branches
             securedBy:
-            - auth
+            - basicauth
+            - token
             responses:
               200:
                 description: Success
@@ -2759,7 +2823,8 @@ types:
           displayName: repoListCollaborators
           description: List a repository's collaborators
           securedBy:
-          - auth
+          - basicauth
+          - token
           responses:
             200:
               description: Success
@@ -2780,7 +2845,8 @@ types:
             displayName: repoCheckCollaborator
             description: Check if a user is a collaborator of a repository
             securedBy:
-            - auth
+            - basicauth
+            - token
             responses:
               404:
                 description: APIEmpty is an empty response
@@ -2793,12 +2859,14 @@ types:
                 displayName: body
                 type: AddCollaboratorOption
             securedBy:
-            - auth
+            - basicauth
+            - token
           delete:
             displayName: repoDeleteCollaborator
             description: Delete a collaborator from a repository
             securedBy:
-            - auth
+            - basicauth
+            - token
       /commits/{ref}/statuses:
         uriParameters:
           ref:
@@ -2810,7 +2878,8 @@ types:
           displayName: repoGetCombinedStatusByRef
           description: Get a commit's combined status, by branch/tag/commit reference
           securedBy:
-          - auth
+          - basicauth
+          - token
           responses:
             200:
               description: Success
@@ -2829,13 +2898,15 @@ types:
           displayName: repoGetEditorConfig
           description: Get the EditorConfig definitions of a file in a repository
           securedBy:
-          - auth
+          - basicauth
+          - token
       /forks:
         get:
           displayName: listForks
           description: List a repository's forks
           securedBy:
-          - auth
+          - basicauth
+          - token
           responses:
             200:
               description: Success
@@ -2853,7 +2924,8 @@ types:
               displayName: body
               type: CreateForkOption
           securedBy:
-          - auth
+          - basicauth
+          - token
           responses:
             202:
               description: Success
@@ -2866,7 +2938,8 @@ types:
           displayName: repoListHooks
           description: List the hooks in a repository
           securedBy:
-          - auth
+          - basicauth
+          - token
           responses:
             200:
               description: Success
@@ -2884,7 +2957,8 @@ types:
               displayName: body
               type: CreateHookOption
           securedBy:
-          - auth
+          - basicauth
+          - token
           responses:
             201:
               description: Success
@@ -2906,7 +2980,8 @@ types:
             displayName: repoGetHook
             description: Get a hook
             securedBy:
-            - auth
+            - basicauth
+            - token
             responses:
               200:
                 description: Success
@@ -2924,7 +2999,8 @@ types:
                 displayName: body
                 type: EditHookOption
             securedBy:
-            - auth
+            - basicauth
+            - token
             responses:
               200:
                 description: Success
@@ -2939,7 +3015,8 @@ types:
           displayName: issueListIssues
           description: List a repository's issues
           securedBy:
-          - auth
+          - basicauth
+          - token
           queryParameters:
             state:
               required: false
@@ -2969,7 +3046,8 @@ types:
               displayName: body
               type: CreateIssueOption
           securedBy:
-          - auth
+          - basicauth
+          - token
           responses:
             201:
               description: Success
@@ -2982,7 +3060,8 @@ types:
             displayName: issueGetRepoComments
             description: List all comments in a repository
             securedBy:
-            - auth
+            - basicauth
+            - token
             queryParameters:
               string:
                 required: false
@@ -3014,7 +3093,8 @@ types:
                   displayName: body
                   type: EditIssueCommentOption
               securedBy:
-              - auth
+              - basicauth
+              - token
               responses:
                 200:
                   description: Success
@@ -3026,7 +3106,8 @@ types:
               displayName: issueDeleteComment
               description: Delete a comment
               securedBy:
-              - auth
+              - basicauth
+              - token
         /{id}:
           uriParameters:
             id:
@@ -3039,7 +3120,8 @@ types:
             displayName: issueGetIssue
             description: Get an issue by id
             securedBy:
-            - auth
+            - basicauth
+            - token
             responses:
               200:
                 description: Success
@@ -3055,7 +3137,8 @@ types:
                 displayName: body
                 type: EditIssueOption
             securedBy:
-            - auth
+            - basicauth
+            - token
             responses:
               201:
                 description: Success
@@ -3076,7 +3159,8 @@ types:
               displayName: issueGetComments
               description: List all comments on an issue
               securedBy:
-              - auth
+              - basicauth
+              - token
               queryParameters:
                 id:
                   required: true
@@ -3106,7 +3190,8 @@ types:
                   displayName: body
                   type: CreateIssueOption
               securedBy:
-              - auth
+              - basicauth
+              - token
               queryParameters:
                 id:
                   required: true
@@ -3137,7 +3222,8 @@ types:
                     displayName: body
                     type: EditIssueCommentOption
                 securedBy:
-                - auth
+                - basicauth
+                - token
                 responses:
                   200:
                     description: Success
@@ -3149,13 +3235,15 @@ types:
                 displayName: issueDeleteCommentDeprecated
                 description: Delete a comment
                 securedBy:
-                - auth
+                - basicauth
+                - token
           /labels:
             get:
               displayName: issueGetLabels
               description: Get an issue's labels
               securedBy:
-              - auth
+              - basicauth
+              - token
               responses:
                 200:
                   description: Success
@@ -3176,7 +3264,8 @@ types:
                   displayName: body
                   type: IssueLabelsOption
               securedBy:
-              - auth
+              - basicauth
+              - token
               responses:
                 200:
                   description: Success
@@ -3194,7 +3283,8 @@ types:
                   displayName: body
                   type: IssueLabelsOption
               securedBy:
-              - auth
+              - basicauth
+              - token
               responses:
                 200:
                   description: Success
@@ -3208,7 +3298,8 @@ types:
               displayName: issueClearLabels
               description: Remove all labels from an issue
               securedBy:
-              - auth
+              - basicauth
+              - token
             /{id}:
               uriParameters:
                 id:
@@ -3221,13 +3312,15 @@ types:
                 displayName: issueRemoveLabel
                 description: Remove a label from an issue
                 securedBy:
-                - auth
+                - basicauth
+                - token
           /times:
             get:
               displayName: issueTrackedTimes
               description: List an issue's tracked times
               securedBy:
-              - auth
+              - basicauth
+              - token
               responses:
                 200:
                   description: Success
@@ -3245,7 +3338,8 @@ types:
                   displayName: body
                   type: AddTimeOption
               securedBy:
-              - auth
+              - basicauth
+              - token
               queryParameters:
                 id:
                   required: true
@@ -3271,7 +3365,8 @@ types:
           displayName: repoListKeys
           description: List a repository's keys
           securedBy:
-          - auth
+          - basicauth
+          - token
           responses:
             200:
               description: Success
@@ -3289,7 +3384,8 @@ types:
               displayName: body
               type: CreateKeyOption
           securedBy:
-          - auth
+          - basicauth
+          - token
           responses:
             201:
               description: Success
@@ -3309,7 +3405,8 @@ types:
             displayName: repoGetKey
             description: Get a repository's key by id
             securedBy:
-            - auth
+            - basicauth
+            - token
             responses:
               200:
                 description: Success
@@ -3321,13 +3418,15 @@ types:
             displayName: repoDeleteKey
             description: Delete a key from a repository
             securedBy:
-            - auth
+            - basicauth
+            - token
       /labels:
         get:
           displayName: issueListLabels
           description: Get all of a repository's labels
           securedBy:
-          - auth
+          - basicauth
+          - token
           responses:
             200:
               description: Success
@@ -3345,7 +3444,8 @@ types:
               displayName: body
               type: CreateLabelOption
           securedBy:
-          - auth
+          - basicauth
+          - token
           responses:
             201:
               description: Success
@@ -3365,7 +3465,8 @@ types:
             displayName: issueGetLabel
             description: Get a single label
             securedBy:
-            - auth
+            - basicauth
+            - token
             responses:
               200:
                 description: Success
@@ -3381,7 +3482,8 @@ types:
                 displayName: body
                 type: EditLabelOption
             securedBy:
-            - auth
+            - basicauth
+            - token
             responses:
               200:
                 description: Success
@@ -3393,13 +3495,15 @@ types:
             displayName: issueDeleteLabel
             description: Delete a label
             securedBy:
-            - auth
+            - basicauth
+            - token
       /milestones:
         get:
           displayName: issueGetMilestones
           description: Get all of a repository's milestones
           securedBy:
-          - auth
+          - basicauth
+          - token
           queryParameters:
             id:
               required: true
@@ -3424,7 +3528,8 @@ types:
               displayName: body
               type: CreateMilestoneOption
           securedBy:
-          - auth
+          - basicauth
+          - token
           responses:
             201:
               description: Success
@@ -3442,7 +3547,8 @@ types:
             displayName: issueGetMilestone
             description: Get a milestone
             securedBy:
-            - auth
+            - basicauth
+            - token
             responses:
               200:
                 description: Success
@@ -3458,7 +3564,8 @@ types:
                 displayName: body
                 type: EditMilestoneOption
             securedBy:
-            - auth
+            - basicauth
+            - token
             responses:
               200:
                 description: Success
@@ -3470,7 +3577,8 @@ types:
             displayName: issueDeleteMilestone
             description: Delete a milestone
             securedBy:
-            - auth
+            - basicauth
+            - token
             queryParameters:
               body:
                 required: true
@@ -3483,13 +3591,15 @@ types:
           displayName: repoMirrorSync
           description: Sync a mirrored repository
           securedBy:
-          - auth
+          - basicauth
+          - token
       /pulls:
         get:
           displayName: repoListPullRequests
           description: List a repo's pull requests
           securedBy:
-          - auth
+          - basicauth
+          - token
           responses:
             200:
               description: Success
@@ -3507,7 +3617,8 @@ types:
               displayName: body
               type: CreatePullRequestOption
           securedBy:
-          - auth
+          - basicauth
+          - token
           responses:
             201:
               description: Success
@@ -3527,7 +3638,8 @@ types:
             displayName: repoGetPullRequest
             description: Get a pull request
             securedBy:
-            - auth
+            - basicauth
+            - token
             responses:
               200:
                 description: Success
@@ -3543,7 +3655,8 @@ types:
                 displayName: body
                 type: EditPullRequestOption
             securedBy:
-            - auth
+            - basicauth
+            - token
             responses:
               201:
                 description: Success
@@ -3556,7 +3669,8 @@ types:
               displayName: repoPullRequestIsMerged
               description: Check if a pull request has been merged
               securedBy:
-              - auth
+              - basicauth
+              - token
               responses:
                 204:
                   description: pull request has been merged
@@ -3572,7 +3686,8 @@ types:
               displayName: repoMergePullRequest
               description: Merge a pull request
               securedBy:
-              - auth
+              - basicauth
+              - token
               responses:
                 405:
                   description: APIEmpty is an empty response
@@ -3588,13 +3703,15 @@ types:
           displayName: repoGetRawFile
           description: Get a file from a repository
           securedBy:
-          - auth
+          - basicauth
+          - token
       /releases:
         get:
           displayName: repoCreateRelease
           description: Create a release
           securedBy:
-          - auth
+          - basicauth
+          - token
           responses:
             201:
               description: Success
@@ -3618,7 +3735,8 @@ types:
                 displayName: body
                 type: EditReleaseOption
             securedBy:
-            - auth
+            - basicauth
+            - token
             responses:
               200:
                 description: Success
@@ -3630,13 +3748,15 @@ types:
             displayName: repoDeleteRelease
             description: Delete a release
             securedBy:
-            - auth
+            - basicauth
+            - token
       /stargazers:
         get:
           displayName: repoListStargazers
           description: List a repo's stargazers
           securedBy:
-          - auth
+          - basicauth
+          - token
           responses:
             200:
               description: Success
@@ -3657,7 +3777,8 @@ types:
           displayName: repoListStatuses
           description: Get a commit's statuses
           securedBy:
-          - auth
+          - basicauth
+          - token
           responses:
             200:
               description: Success
@@ -3675,7 +3796,8 @@ types:
               displayName: body
               type: CreateStatusOption
           securedBy:
-          - auth
+          - basicauth
+          - token
           responses:
             200:
               description: Success
@@ -3690,7 +3812,8 @@ types:
           displayName: repoListSubscribers
           description: List a repo's watchers
           securedBy:
-          - auth
+          - basicauth
+          - token
           responses:
             200:
               description: Success
@@ -3705,7 +3828,8 @@ types:
           displayName: userCurrentCheckSubscription
           description: Check if the current user is watching a repo
           securedBy:
-          - auth
+          - basicauth
+          - token
           responses:
             200:
               description: Success
@@ -3717,7 +3841,8 @@ types:
           displayName: userCurrentPutSubscription
           description: Watch a repo
           securedBy:
-          - auth
+          - basicauth
+          - token
           responses:
             200:
               description: Success
@@ -3729,13 +3854,15 @@ types:
           displayName: userCurrentDeleteSubscription
           description: Unwatch a repo
           securedBy:
-          - auth
+          - basicauth
+          - token
       /times:
         get:
           displayName: repoTrackedTimes
           description: List a repo's tracked times
           securedBy:
-          - auth
+          - basicauth
+          - token
           responses:
             200:
               description: Success
@@ -3755,7 +3882,8 @@ types:
             displayName: userTrackedTimes
             description: List a user's tracked times in a repo
             securedBy:
-            - auth
+            - basicauth
+            - token
             queryParameters:
               user:
                 required: true
@@ -3784,7 +3912,8 @@ types:
       displayName: orgGetTeam
       description: Get a team
       securedBy:
-      - auth
+      - basicauth
+      - token
       responses:
         200:
           description: Success
@@ -3800,7 +3929,8 @@ types:
           displayName: body
           type: EditTeamOption
       securedBy:
-      - auth
+      - basicauth
+      - token
       responses:
         200:
           description: Success
@@ -3812,7 +3942,8 @@ types:
       displayName: orgDeleteTeam
       description: Delete a team
       securedBy:
-      - auth
+      - basicauth
+      - token
       responses:
         204:
           description: team deleted
@@ -3826,7 +3957,8 @@ types:
         displayName: orgListTeamMembers
         description: List a team's members
         securedBy:
-        - auth
+        - basicauth
+        - token
         responses:
           200:
             description: Success
@@ -3847,18 +3979,21 @@ types:
           displayName: orgAddTeamMember
           description: Add a team member
           securedBy:
-          - auth
+          - basicauth
+          - token
         delete:
           displayName: orgAddTeamMember
           description: Remove a team member
           securedBy:
-          - auth
+          - basicauth
+          - token
     /repos:
       get:
         displayName: orgListTeamRepos
         description: List a team's repos
         securedBy:
-        - auth
+        - basicauth
+        - token
         responses:
           200:
             description: Success
@@ -3884,19 +4019,22 @@ types:
           displayName: orgAddTeamMember
           description: Add a repository to a team
           securedBy:
-          - auth
+          - basicauth
+          - token
         delete:
           displayName: orgAddTeamMember
           description: This does not delete the repository, it only removes the repository from the team.
           securedBy:
-          - auth
+          - basicauth
+          - token
 /users:
   /search:
     get:
       displayName: userSearch
       description: Search for users
       securedBy:
-      - auth
+      - basicauth
+      - token
       queryParameters:
         q:
           required: false
@@ -3934,7 +4072,8 @@ types:
       displayName: userCheckFollowing
       description: Check if one user is following another user
       securedBy:
-      - auth
+      - basicauth
+      - token
       responses:
         404:
           description: APINotFound is a not found empty response
@@ -3950,7 +4089,8 @@ types:
       displayName: userGet
       description: Get a user
       securedBy:
-      - auth
+      - basicauth
+      - token
       responses:
         200:
           description: Success
@@ -3966,7 +4106,8 @@ types:
         displayName: userListFollowers
         description: List the given user's followers
         securedBy:
-        - auth
+        - basicauth
+        - token
         responses:
           200:
             description: Success
@@ -3981,7 +4122,8 @@ types:
         displayName: userListFollowing
         description: List the users that the given user is following
         securedBy:
-        - auth
+        - basicauth
+        - token
         responses:
           200:
             description: Success
@@ -3996,7 +4138,8 @@ types:
         displayName: userListGPGKeys
         description: List the given user's GPG keys
         securedBy:
-        - auth
+        - basicauth
+        - token
         responses:
           200:
             description: Success
@@ -4011,7 +4154,8 @@ types:
         displayName: userListKeys
         description: List the given user's public keys
         securedBy:
-        - auth
+        - basicauth
+        - token
         responses:
           200:
             description: Success
@@ -4026,7 +4170,8 @@ types:
         displayName: userListRepos
         description: List the repos owned by the given user
         securedBy:
-        - auth
+        - basicauth
+        - token
         responses:
           200:
             description: Success
@@ -4041,7 +4186,8 @@ types:
         displayName: userListStarred
         description: The repos that the given user has starred
         securedBy:
-        - auth
+        - basicauth
+        - token
         responses:
           200:
             description: Success
@@ -4056,7 +4202,8 @@ types:
         displayName: userListSubscriptions
         description: List the repositories watched by a user
         securedBy:
-        - auth
+        - basicauth
+        - token
         responses:
           200:
             description: Success
@@ -4071,12 +4218,14 @@ types:
         displayName: userGetTokens
         description: List the authenticated user's access tokens
         securedBy:
-        - auth
+        - basicauth
+        - token
       post:
         displayName: userCreateToken
         description: Create an access token
         securedBy:
-        - auth
+        - basicauth
+        - token
         queryParameters:
           name:
             required: false
