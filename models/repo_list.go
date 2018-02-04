@@ -245,32 +245,3 @@ func SearchRepositoryByName(opts *SearchRepoOptions) (RepositoryList, int64, err
 	return repos, count, nil
 }
 
-func GetAccessibleRepositories(user *User) ([]int64, error) {
-	cond := builder.NewCond()
-	cond = cond.Or(builder.Eq{"owner_id": user.ID})
-	collaborateCond := builder.And(
-		builder.Expr("id IN (SELECT repo_id FROM `access` WHERE access.user_id = ?)", user.ID),
-		builder.Neq{"owner_id": user.ID},
-	)
-
-	iyoOrganizations := user.GetUserOrganizations()
-	if len(iyoOrganizations) > 0 {
-		iyoReposCond := builder.Select("repo_id").
-			From("iyo_collaboration").
-			Where(builder.In("organization_global_id", iyoOrganizations))
-		iyoCond := builder.And(
-			builder.In("id", iyoReposCond),
-			builder.Neq{"owner_id": user.ID})
-		collaborateCond = collaborateCond.Or(iyoCond)
-	}
-	cond = cond.Or(collaborateCond)
-	sess := x.NewSession()
-	defer sess.Close()
-
-	var repos_ids []int64
-	err := sess.Select("id").Table("repository").Where(cond).Find(&repos_ids);
-	if err != nil {
-		return nil, fmt.Errorf("Repo: %v", err)
-	}
-	return repos_ids, nil
-}

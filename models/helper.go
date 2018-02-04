@@ -4,6 +4,8 @@
 
 package models
 
+import "reflect"
+
 func keysInt64(m map[int64]struct{}) []int64 {
 	var keys = make([]int64, 0, len(m))
 	for k := range m {
@@ -18,4 +20,25 @@ func valuesRepository(m map[int64]*Repository) []*Repository {
 		values = append(values, v)
 	}
 	return values
+}
+
+func getSlicesIntersection(a interface{}, b interface{}) []interface{} {
+	set := make([]interface{}, 0)
+	hash := make(map[interface{}]bool)
+	av := reflect.ValueOf(a)
+	bv := reflect.ValueOf(b)
+
+	for i := 0; i < av.Len(); i++ {
+		el := av.Index(i).Interface()
+		hash[el] = true
+	}
+
+	for i := 0; i < bv.Len(); i++ {
+		el := bv.Index(i).Interface()
+		if _, found := hash[el]; found {
+			set = append(set, el)
+		}
+	}
+
+	return set
 }

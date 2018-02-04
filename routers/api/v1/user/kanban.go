@@ -12,6 +12,8 @@ import (
 	"code.gitea.io/gitea/models"
 	"code.gitea.io/gitea/modules/context"
 	api "code.gitea.io/sdk/gitea"
+	"strconv"
+	"strings"
 )
 
 var jwtPubKey *ecdsa.PublicKey
@@ -125,4 +127,98 @@ func getKanbanToken(user *models.User) (*models.AccessToken, error) {
 		return nil, err
 	}
 	return token, err
+}
+
+func processQueryInt64(items string) ([]int64, error) {
+	itemsIDs := make([]int64, 0)
+	if len(items) > 0 {
+		itemsSliceIDs := strings.Split(items, ",")
+		for _, itemID := range itemsSliceIDs {
+			itemID = strings.Trim(itemID, " ")
+			parsedItemID, err := strconv.ParseInt(itemID, 10, 64)
+			if err != nil {
+				return nil, err
+			}
+			itemsIDs = append(itemsIDs, parsedItemID)
+		}
+	}
+	return itemsIDs, nil
+}
+
+func GetFilters(ctx *context.APIContext) {
+	kanbanFilters, err := ctx.User.GetKanbanFilters()
+	if err != nil {
+		ctx.Error(500, "Failed to get user repos", err)
+		return
+	}
+	ctx.JSON(200, kanbanFilters)
+}
+
+func GetKanbanIssues(ctx *context.APIContext) {
+	issueOptions := models.KanbanIssueOptions{}
+	var err error
+
+	page := ctx.Query("page")
+	if len(page) > 0 {
+		issueOptions.Page, err = strconv.ParseInt(page, 10, 64)
+		if err != nil {
+			ctx.Error(500, "Failed to get user issues", err)
+			return
+		}
+	} else {
+		issueOptions.Page = 1
+	}
+
+	issueOptions.ReposIDs, err = processQueryInt64(ctx.Query("repos"))
+	if err != nil {
+		ctx.Error(500, "Failed to get user issues", err)
+		return
+	}
+
+	issueOptions.MilestonesIDs, err = processQueryInt64(ctx.Query("milestones"))
+	if err != nil {
+		ctx.Error(500, "Failed to get user issues", err)
+		return
+	}
+
+	issueOptions.LabelsIDs, err = processQueryInt64(ctx.Query("labels"))
+	if err != nil {
+		ctx.Error(500, "Failed to get user issues", err)
+		return
+	}
+
+	issueOptions.AssigneesIDs, err = processQueryInt64(ctx.Query("assignees"))
+	if err != nil {
+		ctx.Error(500, "Failed to get user issues", err)
+		return
+	}
+
+	isClosed := strings.Trim(ctx.Query("closed"), " ")
+	if len(isClosed) > 0 {
+		issueOptions.IsClosed = true
+	} else {
+		issueOptions.IsClosed = false
+	}
+
+	stages := ctx.Query("stages")
+	if len(stages) > 0 {
+		issueOptions.Stages = make([]string, 0)
+		stages := strings.Split(stages, ",")
+		for _, stage := range stages {
+			stage = strings.Trim(stage, " ")
+			issueOptions.Stages = append(issueOptions.Stages, stage)
+		}
+	}
+
+	state := ctx.Query("state")
+	if len(state) > 0 {
+		issueOptions.State = strings.Trim(state, " ")
+	}
+
+	issues, err := ctx.User.GetKanbanIssues(issueOptions)
+	if err != nil {
+		ctx.Error(500, "Failed to get user issues", err)
+		return
+	}
+	ctx.JSON(200, issues)
 }

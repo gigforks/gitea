@@ -4918,6 +4918,90 @@
           }
         }
       }
+    },
+    "/kanban/issues": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "kanban"
+        ],
+        "summary": "Get kanban issues",
+        "operationId": "kanbanIssues",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "comma separated repos ids",
+            "name": "repos",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "comma separated labels ids",
+            "name": "labels",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "comma separated milestones ids",
+            "name": "milestones",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "comma separated assignees ids",
+            "name": "assignees",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "comma separated stages (labels) names",
+            "name": "stages",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "state (label) which need to get only its issues",
+            "name": "state",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "page number of results to return (1-based)",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "if added, it will get closed issues only",
+            "name": "closed",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/KanbanIssueList"
+          }
+        }
+      }
+    },
+    "/kanban/filters": {
+      "get": {
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "kanban"
+        ],
+        "summary": "Get kanban filters",
+        "operationId": "kanbanFilters",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/KanbanFilter"
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -5943,6 +6027,132 @@
       },
       "x-go-package": "code.gitea.io/gitea/vendor/code.gitea.io/sdk/gitea"
     },
+    "KanbanIssue": {
+      "description": "Kanban Issue represents an issue in a repository",
+      "type": "object",
+      "properties": {
+        "assignee": {
+          "type": "string",
+          "x-go-name": "Assignee"
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID"
+        },
+        "repo_id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "RepoID"
+        },
+        "milestone": {
+          "type": "string",
+          "x-go-name": "Milestone"
+        }
+      }
+    },
+    "KanbanRepo": {
+      "description": "Kanban Repo represents a repository",
+      "type": "object",
+      "properties": {
+        "full_name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID"
+        }
+      }
+    },
+    "KanbanLabel": {
+      "description": "Kanban Label represents a label in a repository",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID"
+        },
+        "color": {
+          "type": "string",
+          "x-go-name": "Color"
+        }
+      }
+    },
+    "KanbanAssignee": {
+      "description": "Kanban Assignee represents a user assigned to an issue",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID"
+        }
+      }
+    },
+    "KanbanMilestone": {
+      "description": "Kanban Assignee represents a milestone in a repository",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID"
+        }
+      }
+    },
+    "KanbanFilter": {
+      "description": "KanbanFilter is a list of (repos/labels/assignees/milestones) used to filter kanban issues",
+      "type": "object",
+      "properties": {
+        "repositories": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/KanbanRepo"
+          },
+          "x-go-name": "Repositories"
+        },
+        "labels": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/KanbanLabel"
+          },
+          "x-go-name": "Labels"
+        },
+        "milestones": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/KanbanMilestone"
+          },
+          "x-go-name": "Milestones"
+        },
+        "assignees": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/KanbanAssignee"
+          },
+          "x-go-name": "Assignees"
+        }
+      }
+    },
     "IssueLabelsOption": {
       "description": "IssueLabelsOption a collection of labels",
       "type": "object",
@@ -6889,6 +7099,19 @@
         "items": {
           "$ref": "#/definitions/Issue"
         }
+      }
+    },
+    "KanbanIssueList": {
+      "schema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/definitions/KanbanIssue"
+        }
+      }
+    },
+    "KanbanFilter": {
+      "schema": {
+        "$ref": "#/definitions/KanbanFilter"
       }
     },
     "Label": {

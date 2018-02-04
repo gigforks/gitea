@@ -109,7 +109,7 @@ func SearchAll(ctx *context.Context) {
 	}
 
 	// Search for code in all accessed repos
-	reposIds, err := models.GetAccessibleRepositories(ctx.User)
+	reposIds, err :=ctx.User.GetAccessibleRepositoriesIds()
 	if err != nil {
 		ctx.Handle(500, "SearchAll", err)
 		return
