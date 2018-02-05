@@ -30,13 +30,14 @@ type KanbanAssignee struct {
 }
 
 type KanbanIssue struct {
-	ID        int64  `json:"id"`
-	Name      string `json:"name"`
-	RepoID    string `json:"repo_id"`
-	Assignee  string `json:"assignee"`
-	Milestone string `json:"milestone"`
-	Closed    bool   `json:"closed"`
-	Index     int64  `json:"index"`
+	ID        int64   `json:"id"`
+	Name      string  `json:"name"`
+	RepoID    string  `json:"repo_id"`
+	Assignee  string  `json:"assignee"`
+	Milestone string  `json:"milestone"`
+	Closed    bool    `json:"closed"`
+	Index     int64   `json:"index"`
+	Labels    []int64 `json:"label_ids"`
 }
 
 type KanbanFilter struct {
@@ -224,10 +225,19 @@ func (user *User) GetKanbanIssues(opts KanbanIssueOptions) ([]*KanbanIssue, erro
 			", `user`.lower_name AS assignee, `milestone`.name AS milestone").
 		Where(cond).
 		OrderBy("`issue`.created_unix DESC").
-		Limit(15, (int(opts.Page)-1)*15).
+		Limit(15, (int(opts.Page) - 1) * 15).
 		Find(&issues)
 	if err != nil {
 		return nil, err
+	}
+	for _, issue := range issues {
+		err = sess.Table("issue_label").
+			Select("label_id").
+			Where("issue_id = ?", issue.ID).
+			Find(&issue.Labels)
+		if err != nil {
+			return nil, err
+		}
 	}
 	return issues, nil
 }
