@@ -4,7 +4,9 @@
 
 package models
 
-import "github.com/go-xorm/builder"
+import (
+	"github.com/go-xorm/builder"
+)
 
 type KanbanRepo struct {
 	ID   int64  `json:"id"`
@@ -34,6 +36,7 @@ type KanbanIssue struct {
 	Assignee  string `json:"assignee"`
 	Milestone string `json:"milestone"`
 	Closed    bool   `json:"closed"`
+	Index     int64  `json:"index"`
 }
 
 type KanbanFilter struct {
@@ -85,7 +88,7 @@ func getKanbanLabels(sess Engine, reposIDs []int64) ([]*KanbanLabel, error) {
 func getKanbanMilestones(sess Engine, reposIDs []int64) ([]*KanbanMilestone, error) {
 	milestones := make([]*KanbanMilestone, 0)
 	err := sess.Table("milestone").
-		Select("`milestone`.id AS `id`, `milestone`.name AS name").
+		Select("DISTINCT `milestone`.id AS `id`, `milestone`.name AS name").
 		Join("INNER", "issue", "`milestone`.id = `issue`.milestone_id").
 		In("`issue`.repo_id", reposIDs).
 		OrderBy("`milestone`.name ASC").
@@ -180,12 +183,13 @@ func (user *User) GetKanbanIssues(opts KanbanIssueOptions) ([]*KanbanIssue, erro
 	}
 
 	if len(opts.LabelsIDs) > 0 {
-		sess.Join("INNER", "issue_label", "`issue`.id = `issue_label`.issue_id AND `issue_label`.label_id in ?", opts.LabelsIDs)
+		sess.Join("INNER", "issue_label", "`issue`.id = `issue_label`.issue_id")
+		sess.In("`issue_label`.label_id", opts.LabelsIDs)
 	}
 
 	cond = cond.And(builder.Eq{"`issue`.is_closed": opts.IsClosed})
 	if !opts.IsClosed {
-		labelsIDs := make([]string, 0)
+		labelsIDs := make([]int64, 0)
 
 		if len(opts.State) > 0 {
 			err := sess.Table("label").
@@ -195,7 +199,8 @@ func (user *User) GetKanbanIssues(opts KanbanIssueOptions) ([]*KanbanIssue, erro
 			if err != nil {
 				return nil, err
 			}
-			sess.Join("INNER", "issue_label", "`issue`.id = `issue_label`.issue_id AND `issue_label`.label_id in ?", labelsIDs)
+			sess.Join("INNER", "issue_label", "`issue`.id = `issue_label`.issue_id")
+			sess.In("`issue_label`.label_id", labelsIDs)
 		} else if len(opts.Stages) > 0 {
 			err := sess.Table("label").
 				Select("id").
@@ -204,7 +209,9 @@ func (user *User) GetKanbanIssues(opts KanbanIssueOptions) ([]*KanbanIssue, erro
 			if err != nil {
 				return nil, err
 			}
-			sess.Join("INNER", "issue_label", "`issue`.id = `issue_label`.issue_id AND `issue_label`.label_id not in ?", labelsIDs)
+			sess.Join("LEFT", "issue_label", "`issue`.id = `issue_label`.issue_id")
+			sess.NotIn("`issue_label`.label_id", labelsIDs)
+			sess.Or("`issue_label`.label_id IS NULL")
 		}
 	}
 
@@ -213,7 +220,7 @@ func (user *User) GetKanbanIssues(opts KanbanIssueOptions) ([]*KanbanIssue, erro
 		Join("LEFT", "user", "`issue`.assignee_id = `user`.id").
 		Join("LEFT", "milestone", "`issue`.milestone_id = `milestone`.id").
 		Select("`issue`.id AS id, `issue`.is_closed AS closed, `issue`.name AS name"+
-			", `issue`.repo_id AS repo_id"+
+			", `issue`.repo_id AS repo_id, `issue`.index AS index"+
 			", `user`.lower_name AS assignee, `milestone`.name AS milestone").
 		Where(cond).
 		OrderBy("`issue`.created_unix DESC").
