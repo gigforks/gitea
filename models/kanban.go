@@ -7,39 +7,40 @@ package models
 import "github.com/go-xorm/builder"
 
 type KanbanRepo struct {
-	ID   int64    `json:"id"`
-	Name string   `json:"full_name"`
+	ID   int64  `json:"id"`
+	Name string `json:"full_name"`
 }
 
 type KanbanLabel struct {
-	ID    int64    `json:"id"`
-	Name  string   `json:"name"`
-	Color string   `json:"color"`
+	ID    int64  `json:"id"`
+	Name  string `json:"name"`
+	Color string `json:"color"`
 }
 
 type KanbanMilestone struct {
-	ID   int64    `json:"id"`
-	Name string   `json:"name"`
+	ID   int64  `json:"id"`
+	Name string `json:"name"`
 }
 
 type KanbanAssignee struct {
-	ID   int64    `json:"id"`
-	Name string   `json:"name"`
+	ID   int64  `json:"id"`
+	Name string `json:"name"`
 }
 
 type KanbanIssue struct {
-	ID        int64    `json:"id"`
-	Name      string   `json:"name"`
-	RepoID    string   `json:"repo_id"`
-	Assignee  string   `json:"assignee"`
-	Milestone string   `json:"milestone"`
+	ID        int64  `json:"id"`
+	Name      string `json:"name"`
+	RepoID    string `json:"repo_id"`
+	Assignee  string `json:"assignee"`
+	Milestone string `json:"milestone"`
+	Closed    bool   `json:"closed"`
 }
 
 type KanbanFilter struct {
-	Repositories []*KanbanRepo        `json:"repositories"`
-	Milestones   []*KanbanMilestone   `json:"milestones"`
-	Labels       []*KanbanLabel       `json:"labels"`
-	Assignees    []*KanbanAssignee    `json:"assignees"`
+	Repositories []*KanbanRepo      `json:"repositories"`
+	Milestones   []*KanbanMilestone `json:"milestones"`
+	Labels       []*KanbanLabel     `json:"labels"`
+	Assignees    []*KanbanAssignee  `json:"assignees"`
 }
 
 type KanbanIssueOptions struct {
@@ -60,7 +61,7 @@ func getKanbanRepos(sess Engine, reposIDs []int64) ([]*KanbanRepo, error) {
 		Join("INNER", "user", "`repository`.owner_id = `user`.id").
 		In("`repository`.id", reposIDs).
 		OrderBy("repository.lower_name ASC").
-		Find(&repos);
+		Find(&repos)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +75,7 @@ func getKanbanLabels(sess Engine, reposIDs []int64) ([]*KanbanLabel, error) {
 		Join("INNER", "repository", "`repository`.id = `label`.repo_id").
 		In("`label`.repo_id", reposIDs).
 		OrderBy("`label`.name ASC").
-		Find(&labels);
+		Find(&labels)
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +89,7 @@ func getKanbanMilestones(sess Engine, reposIDs []int64) ([]*KanbanMilestone, err
 		Join("INNER", "issue", "`milestone`.id = `issue`.milestone_id").
 		In("`issue`.repo_id", reposIDs).
 		OrderBy("`milestone`.name ASC").
-		Find(&milestones);
+		Find(&milestones)
 	if err != nil {
 		return nil, err
 	}
@@ -102,7 +103,7 @@ func getKanbanAssignees(sess Engine, reposIDs []int64) ([]*KanbanAssignee, error
 		Join("INNER", "issue", "`user`.id = `issue`.assignee_id").
 		In("`issue`.repo_id", reposIDs).
 		OrderBy("`user`.name ASC").
-		Find(&assignees);
+		Find(&assignees)
 	if err != nil {
 		return nil, err
 	}
@@ -139,9 +140,9 @@ func (user *User) GetKanbanFilters() (*KanbanFilter, error) {
 
 	filters := KanbanFilter{
 		Repositories: repos,
-		Milestones: milestones,
-		Labels: labels,
-		Assignees: assignees,
+		Milestones:   milestones,
+		Labels:       labels,
+		Assignees:    assignees,
 	}
 
 	return &filters, err
@@ -190,7 +191,7 @@ func (user *User) GetKanbanIssues(opts KanbanIssueOptions) ([]*KanbanIssue, erro
 			err := sess.Table("label").
 				Select("id").
 				Where("name = ?", opts.State).
-				Find(&labelsIDs);
+				Find(&labelsIDs)
 			if err != nil {
 				return nil, err
 			}
@@ -199,7 +200,7 @@ func (user *User) GetKanbanIssues(opts KanbanIssueOptions) ([]*KanbanIssue, erro
 			err := sess.Table("label").
 				Select("id").
 				In("name", opts.Stages).
-				Find(&labelsIDs);
+				Find(&labelsIDs)
 			if err != nil {
 				return nil, err
 			}
@@ -211,11 +212,13 @@ func (user *User) GetKanbanIssues(opts KanbanIssueOptions) ([]*KanbanIssue, erro
 	err = sess.Table("issue").
 		Join("LEFT", "user", "`issue`.assignee_id = `user`.id").
 		Join("LEFT", "milestone", "`issue`.milestone_id = `milestone`.id").
-		Select("`issue`.id AS id, `issue`.name AS name, `issue`.repo_id AS repo_id, `user`.lower_name AS assignee, `milestone`.name AS milestone").
+		Select("`issue`.id AS id, `issue`.is_closed AS closed, `issue`.name AS name"+
+			", `issue`.repo_id AS repo_id"+
+			", `user`.lower_name AS assignee, `milestone`.name AS milestone").
 		Where(cond).
 		OrderBy("`issue`.created_unix DESC").
-		Limit(15, (int(opts.Page) - 1) * 15).
-		Find(&issues);
+		Limit(15, (int(opts.Page)-1)*15).
+		Find(&issues)
 	if err != nil {
 		return nil, err
 	}
