@@ -75,7 +75,7 @@ func getKanbanRepos(sess Engine, reposIDs []int64) ([]*KanbanRepo, error) {
 func getKanbanLabels(sess Engine, reposIDs []int64) ([]*KanbanLabel, error) {
 	labels := make([]*KanbanLabel, 0)
 	err := sess.Table("label").
-		Select("`label`.id AS `id`, `label`.name AS name, `label`.color AS color").
+		Select("DISTINCT `label`.id AS `id`, `label`.name AS name, `label`.color AS color").
 		Join("INNER", "repository", "`repository`.id = `label`.repo_id").
 		In("`label`.repo_id", reposIDs).
 		OrderBy("`label`.name ASC").
@@ -103,10 +103,10 @@ func getKanbanMilestones(sess Engine, reposIDs []int64) ([]*KanbanMilestone, err
 func getKanbanAssignees(sess Engine, reposIDs []int64) ([]*KanbanAssignee, error) {
 	assignees := make([]*KanbanAssignee, 0)
 	err := sess.Table("user").
-		Select("`user`.id AS `id`, `user`.lower_name AS name").
+		Select("DISTINCT `user`.id AS `id`, `user`.lower_name AS name").
 		Join("INNER", "issue", "`user`.id = `issue`.assignee_id").
 		In("`issue`.repo_id", reposIDs).
-		OrderBy("`user`.name ASC").
+		OrderBy("`user`.lower_name ASC").
 		Find(&assignees)
 	if err != nil {
 		return nil, err
