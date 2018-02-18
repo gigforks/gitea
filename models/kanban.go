@@ -210,9 +210,15 @@ func (user *User) GetKanbanIssues(opts KanbanIssueOptions) ([]*KanbanIssue, erro
 			if err != nil {
 				return nil, err
 			}
-			sess.Join("LEFT", "issue_label", "`issue`.id = `issue_label`.issue_id")
-			sess.NotIn("`issue_label`.label_id", labelsIDs)
-			sess.Or("`issue_label`.label_id IS NULL")
+			excludedIssuesIDs := make([]int64, 0)
+			err = sess.Table("issue_label").
+				Select("issue_id").
+				In("label_id", labelsIDs).
+				Find(&excludedIssuesIDs)
+			if err != nil {
+				return nil, err
+			}
+			sess.NotIn("`issue`.id", excludedIssuesIDs)
 		}
 	}
 
