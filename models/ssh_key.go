@@ -64,11 +64,6 @@ type PublicKey struct {
 
 // AfterLoad is invoked from XORM after setting the values of all fields of this object.
 func (key *PublicKey) AfterLoad() {
-	// Update user itsyou.online organizations
-	user, err := GetUserByID(key.OwnerID)
-	if err == nil && key.Type == KeyTypeUser{
-		user.UpdateMembership()
-	}
 	key.Created = time.Unix(key.CreatedUnix, 0).Local()
 	key.Updated = time.Unix(key.UpdatedUnix, 0).Local()
 	key.HasUsed = key.Updated.After(key.Created)

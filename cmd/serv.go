@@ -225,6 +225,7 @@ func runServ(c *cli.Context) error {
 			}
 		} else {
 			user, err = models.GetUserByKeyID(key.ID)
+			user.UpdateMembership()
 			if err != nil {
 				fail("internal error", "Failed to get user by key ID(%d): %v", keyID, err)
 			}
