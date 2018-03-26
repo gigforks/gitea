@@ -183,17 +183,21 @@ func (user *User) GetKanbanIssues(opts KanbanIssueOptions) ([]*KanbanIssue, erro
 		cond = cond.And(builder.In("`issue`.milestone_id", opts.MilestonesIDs))
 	}
 
-	if len(opts.LabelsIDs) > 0 {
-		sess.Join("INNER", "issue_label", "`issue`.id = `issue_label`.issue_id")
-		sess.In("`issue_label`.label_id", opts.LabelsIDs)
-	}
+	/* Here we have multiple cases for kanban query:
+	1 - The user is querying for closed issues (the `done` column in the kanban)
+	2 - the user is querying for backlog issues (so he sends the `stages` param to exclude all issues with any of these labels)
+	3 - the user is querying for a single state (single kanban column other than backlog and done columns)
+	*/
 
+	// Case 1: querying for closed issues
 	cond = cond.And(builder.Eq{"`issue`.is_closed": opts.IsClosed})
+
+	// Case2 and Case3
 	if !opts.IsClosed {
 		labelsIDs := make([]int64, 0)
 
 		if len(opts.State) > 0 {
-			err := sess.Table("label").
+			err := x.Table("label").
 				Select("id").
 				Where("name = ?", opts.State).
 				Find(&labelsIDs)
@@ -203,7 +207,7 @@ func (user *User) GetKanbanIssues(opts KanbanIssueOptions) ([]*KanbanIssue, erro
 			sess.Join("INNER", "issue_label", "`issue`.id = `issue_label`.issue_id")
 			sess.In("`issue_label`.label_id", labelsIDs)
 		} else if len(opts.Stages) > 0 {
-			err := sess.Table("label").
+			err := x.Table("label").
 				Select("id").
 				In("name", opts.Stages).
 				Find(&labelsIDs)
@@ -211,7 +215,7 @@ func (user *User) GetKanbanIssues(opts KanbanIssueOptions) ([]*KanbanIssue, erro
 				return nil, err
 			}
 			excludedIssuesIDs := make([]int64, 0)
-			err = sess.Table("issue_label").
+			err = x.Table("issue_label").
 				Select("issue_id").
 				In("label_id", labelsIDs).
 				Find(&excludedIssuesIDs)
@@ -236,14 +240,47 @@ func (user *User) GetKanbanIssues(opts KanbanIssueOptions) ([]*KanbanIssue, erro
 	if err != nil {
 		return nil, err
 	}
+
+	finalIssues := make([]*KanbanIssue, 0)
+
+	optsLabelsNames := make([]string, 0)
+	if len(opts.LabelsIDs) > 0 {
+		err = x.Table("label").
+			Select("distinct name").
+			In("id", opts.LabelsIDs).
+			Find(&optsLabelsNames)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	for _, issue := range issues {
-		err = sess.Table("issue_label").
+		included := true
+		err = x.Table("issue_label").
 			Select("label_id").
 			Where("issue_id = ?", issue.ID).
 			Find(&issue.Labels)
 		if err != nil {
 			return nil, err
 		}
+
+		if len(optsLabelsNames) > 0 {
+			issueLabelsNames := make([]string, 0)
+			err = x.Table("label").
+				Select("distinct name").
+				In("id", issue.Labels).
+				Find(&issueLabelsNames)
+			if err != nil {
+				return nil, err
+			}
+			if !subset(optsLabelsNames, issueLabelsNames) {
+				included = false
+			}
+		}
+
+		if included {
+			finalIssues = append(finalIssues, issue)
+		}
 	}
-	return issues, nil
+	return finalIssues, nil
 }
