@@ -66,7 +66,7 @@ func GetTokenByJWT(ctx *context.APIContext, form TokenByJwtOption) {
 	}
 
 	// Set user organizations from itsyou.online
-	user.UpdateMembership()
+	//user.UpdateMembership()
 
 	token, err := getKanbanToken(user)
 	if err != nil {

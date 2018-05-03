@@ -14,30 +14,34 @@ type KanbanRepo struct {
 }
 
 type KanbanLabel struct {
-	ID    int64  `json:"id"`
-	Name  string `json:"name"`
-	Color string `json:"color"`
+	ID     int64  `json:"id"`
+	Name   string `json:"name"`
+	Color  string `json:"color"`
+	RepoID int64  `json:"repo_id"`
 }
 
 type KanbanMilestone struct {
-	ID   int64  `json:"id"`
-	Name string `json:"name"`
+	ID     int64  `json:"id"`
+	Name   string `json:"name"`
+	RepoID int64  `json:"repo_id"`
 }
 
 type KanbanAssignee struct {
-	ID   int64  `json:"id"`
-	Name string `json:"name"`
+	ID         int64  `json:"id"`
+	Name       string `json:"name"`
+	AvatarUrl  string `json:"avatar_url"`
+	ProfileUrl string `json:"profile_url"`
 }
 
 type KanbanIssue struct {
-	ID        int64   `json:"id"`
-	Name      string  `json:"name"`
-	RepoID    string  `json:"repo_id"`
-	Assignee  string  `json:"assignee"`
-	Milestone string  `json:"milestone"`
-	Closed    bool    `json:"closed"`
-	Index     int64   `json:"index"`
-	Labels    []int64 `json:"label_ids"`
+	ID        int64             `json:"id"`
+	Name      string            `json:"name"`
+	RepoID    string            `json:"repo_id"`
+	Assignee  KanbanAssignee    `json:"assignee"`
+	Milestone string            `json:"milestone"`
+	Closed    bool              `json:"closed"`
+	Index     int64             `json:"index"`
+	Labels    []KanbanLabel     `json:"labels"`
 }
 
 type KanbanFilter struct {
@@ -75,7 +79,7 @@ func getKanbanRepos(sess Engine, reposIDs []int64) ([]*KanbanRepo, error) {
 func getKanbanLabels(sess Engine, reposIDs []int64) ([]*KanbanLabel, error) {
 	labels := make([]*KanbanLabel, 0)
 	err := sess.Table("label").
-		Select("DISTINCT `label`.id AS `id`, `label`.name AS name, `label`.color AS color").
+		Select("DISTINCT `label`.id AS `id`, `label`.name AS name, `label`.color AS color, `label`.repo_id AS repo_id").
 		Join("INNER", "repository", "`repository`.id = `label`.repo_id").
 		In("`label`.repo_id", reposIDs).
 		OrderBy("`label`.name ASC").
@@ -89,7 +93,7 @@ func getKanbanLabels(sess Engine, reposIDs []int64) ([]*KanbanLabel, error) {
 func getKanbanMilestones(sess Engine, reposIDs []int64) ([]*KanbanMilestone, error) {
 	milestones := make([]*KanbanMilestone, 0)
 	err := sess.Table("milestone").
-		Select("DISTINCT `milestone`.id AS `id`, `milestone`.name AS name").
+		Select("DISTINCT `milestone`.id AS `id`, `milestone`.name AS name, `milestone`.repo_id AS repo_id").
 		Join("INNER", "issue", "`milestone`.id = `issue`.milestone_id").
 		In("`issue`.repo_id", reposIDs).
 		OrderBy("`milestone`.name ASC").
@@ -230,9 +234,9 @@ func (user *User) GetKanbanIssues(opts KanbanIssueOptions) ([]*KanbanIssue, erro
 	err = sess.Table("issue").
 		Join("LEFT", "user", "`issue`.assignee_id = `user`.id").
 		Join("LEFT", "milestone", "`issue`.milestone_id = `milestone`.id").
-		Select("`issue`.id AS id, `issue`.is_closed AS closed, `issue`.name AS name"+
-			", `issue`.repo_id AS repo_id, `issue`.index AS index"+
-			", `user`.lower_name AS assignee, `milestone`.name AS milestone").
+		Select("`issue`.id AS id, `issue`.is_closed AS closed, `issue`.name AS name" +
+		", `issue`.repo_id AS repo_id, `issue`.index AS index" +
+		", `milestone`.name AS milestone").
 		Where(cond).
 		OrderBy("`issue`.created_unix DESC").
 		Limit(15, (int(opts.Page) - 1) * 15).
@@ -243,42 +247,39 @@ func (user *User) GetKanbanIssues(opts KanbanIssueOptions) ([]*KanbanIssue, erro
 
 	finalIssues := make([]*KanbanIssue, 0)
 
-	optsLabelsNames := make([]string, 0)
-	if len(opts.LabelsIDs) > 0 {
-		err = x.Table("label").
-			Select("distinct name").
-			In("id", opts.LabelsIDs).
-			Find(&optsLabelsNames)
-		if err != nil {
-			return nil, err
-		}
-	}
-
+	//TODO needs better refactoring instead of multiple queries
 	for _, issue := range issues {
 		included := true
 		err = x.Table("issue_label").
-			Select("label_id").
+			Join("INNER", "label", "`issue_label`.label_id = `label`.id").
+			Select("`label`.id AS id, `label`.name AS name, `label`.color AS color, `label`.repo_id AS repo_id").
 			Where("issue_id = ?", issue.ID).
 			Find(&issue.Labels)
 		if err != nil {
 			return nil, err
 		}
 
-		if len(optsLabelsNames) > 0 {
-			issueLabelsNames := make([]string, 0)
-			err = x.Table("label").
-				Select("distinct name").
-				In("id", issue.Labels).
-				Find(&issueLabelsNames)
-			if err != nil {
-				return nil, err
+		if len(opts.LabelsIDs) > 0 {
+			issueLabelsIDs := make([]int64, len(issue.Labels))
+			for i, label := range issue.Labels {
+				issueLabelsIDs[i] = label.ID
 			}
-			if !subset(optsLabelsNames, issueLabelsNames) {
+			if !subset(opts.LabelsIDs, issueLabelsIDs) {
 				included = false
 			}
 		}
 
 		if included {
+			issueObj, _ := GetIssueByID(issue.ID)
+			if issueObj.Assignee != nil {
+				issue.Assignee = KanbanAssignee{
+					ID: issueObj.Assignee.ID,
+					Name: issueObj.Assignee.LowerName,
+					AvatarUrl: issueObj.Assignee.AvatarLink(),
+					ProfileUrl: issueObj.Assignee.HTMLURL(),
+				}
+			}
+
 			finalIssues = append(finalIssues, issue)
 		}
 	}
