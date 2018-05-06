@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"strconv"
 	"code.gitea.io/gitea/modules/log"
+	"code.gitea.io/gitea/modules/setting"
 )
 
 type IssueReference struct {
@@ -133,8 +134,15 @@ func (comment *Comment) DeleteIssueCommentRefs(e Engine) (error) {
 
 //getGiteaIssuesRefs parses the gitea issues referenced in the issue/comment content
 func (issue *Issue) getGiteaIssuesRefs(e Engine, content string) ([] IssueReference) {
-	giteaRegex, _ := regexp.Compile("([^ ]*/[^ ]*)?#([0-9]+)")
-	giteaMatches := giteaRegex.FindAllStringSubmatch(content, -1)
+	//Match relative references i.e: #15 or USER/REPO#15
+	giteaRegex1, _ := regexp.Compile("([^ ]*/[^ ]*)?#([0-9]+)")
+	giteaMatches := giteaRegex1.FindAllStringSubmatch(content, -1)
+
+	// Match Full url path i.e https://docs.greenitglobe.com/gig/org_development/issues/50
+	giteaRegex2, _ := regexp.Compile(setting.AppURL + "([^ ]+/[^ ]+)/issues/([0-9]+)")
+	giteaMatches2 := giteaRegex2.FindAllStringSubmatch(content, -1)
+
+	giteaMatches = append(giteaMatches, giteaMatches2...)
 	giteaIssueRefs := make([]IssueReference, len(giteaMatches))
 	for i, giteaMatch := range giteaMatches {
 		var url string
