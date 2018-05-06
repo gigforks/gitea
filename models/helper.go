@@ -47,8 +47,8 @@ func getSlicesIntersection(a interface{}, b interface{}) []interface{} {
 // contained in the second array. There must be at least
 // the same number of duplicate values in second as there
 // are in first.
-func subset(first, second []int64) bool {
-	set := make(map[int64]struct{})
+func subset(first, second []string) bool {
+	set := make(map[string]struct{})
 	for _, value := range second {
 		set[value] = struct {}{}
 	}

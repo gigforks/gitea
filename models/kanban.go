@@ -245,6 +245,18 @@ func (user *User) GetKanbanIssues(opts KanbanIssueOptions) ([]*KanbanIssue, erro
 		return nil, err
 	}
 
+	// Get Labels options names as they are sent by ids from kanban
+	optionsLabelsNames := make([]string, 0)
+	if len(opts.LabelsIDs) > 0 {
+		err = x.Table("label").
+			Select("DISTINCT name").
+			In("id", opts.LabelsIDs).
+			Find(&optionsLabelsNames)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	finalIssues := make([]*KanbanIssue, 0)
 
 	//TODO needs better refactoring instead of multiple queries
@@ -260,11 +272,11 @@ func (user *User) GetKanbanIssues(opts KanbanIssueOptions) ([]*KanbanIssue, erro
 		}
 
 		if len(opts.LabelsIDs) > 0 {
-			issueLabelsIDs := make([]int64, len(issue.Labels))
+			issueLabelsNames := make([]string, len(issue.Labels))
 			for i, label := range issue.Labels {
-				issueLabelsIDs[i] = label.ID
+				issueLabelsNames[i] = label.Name
 			}
-			if !subset(opts.LabelsIDs, issueLabelsIDs) {
+			if !subset(optionsLabelsNames, issueLabelsNames) {
 				included = false
 			}
 		}
