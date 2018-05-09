@@ -9,8 +9,9 @@ import (
 )
 
 type KanbanRepo struct {
-	ID   int64  `json:"id"`
-	Name string `json:"full_name"`
+	ID     int64            `json:"id"`
+	Name   string           `json:"full_name"`
+	Labels []KanbanLabel    `json:"labels"`
 }
 
 type KanbanLabel struct {
@@ -36,7 +37,7 @@ type KanbanAssignee struct {
 type KanbanIssue struct {
 	ID        int64             `json:"id"`
 	Name      string            `json:"name"`
-	RepoID    string            `json:"repo_id"`
+	RepoID    int64             `json:"repo_id"`
 	Assignee  KanbanAssignee    `json:"assignee"`
 	Milestone string            `json:"milestone"`
 	Closed    bool              `json:"closed"`
