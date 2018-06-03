@@ -87,11 +87,29 @@ func Notifications(c *context.Context) {
 // NotificationStatusPost is a route for changing the status of a notification
 func NotificationStatusPost(c *context.Context) {
 	var (
-		notificationID, _ = strconv.ParseInt(c.Req.PostFormValue("notification_id"), 10, 64)
+		url               = fmt.Sprintf("%s/notifications", setting.AppSubURL)
+		notification 	  = c.Req.PostFormValue("notification_id")
 		statusStr         = c.Req.PostFormValue("status")
 		status            models.NotificationStatus
+		notificationID	  int64
 	)
 
+	if len(notification) > 0 {
+		notificationID, _ = strconv.ParseInt(notification, 10, 64)
+	} else {
+		notifications, err := models.NotificationsForUser(c.User, []models.NotificationStatus{models.NotificationStatusUnread}, 0, 0)
+		if err != nil {
+			c.Handle(500, "InvalidNotifications", errors.New("Invalid notifications"))
+			return
+		}
+		for _, notification := range notifications {
+			if err := models.SetNotificationStatus(notification.ID, c.User, models.NotificationStatusRead); err != nil {
+				c.Handle(500, "SetNotificationStatus", err)
+				return
+			}
+		}
+		c.Redirect(url, 303)
+	}
 	switch statusStr {
 	case "read":
 		status = models.NotificationStatusRead
@@ -108,7 +126,5 @@ func NotificationStatusPost(c *context.Context) {
 		c.Handle(500, "SetNotificationStatus", err)
 		return
 	}
-
-	url := fmt.Sprintf("%s/notifications", setting.AppSubURL)
 	c.Redirect(url, 303)
 }
