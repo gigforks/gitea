@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"crypto/tls"
+	"code.gitea.io/gitea/modules/cache"
+	"time"
 )
 
 const iyoOrgURL = "https://itsyou.online/api/organizations"
@@ -118,6 +120,16 @@ func userIsMemberOfOrg(username string, globalId string, accessToken string) boo
 
 // Get Access token for Organization to get all its children organizations
 func (p *Provider) getOrgAccessToken() (string, error){
+	// try to get access token from cache if it is still valid for more than 5 minutes
+	expiry, _ := cache.Get("access_token_expiry")
+	if expiry, ok := expiry.(int64); ok {
+		if expiry > (time.Now().Unix() + 5 * 60) {
+			token, _ := cache.Get("access_token")
+			if token, ok := token.(string); ok {
+				return token, nil
+			}
+		}
+	}
 	hc := &http.Client{}
 	req, err := http.NewRequest("POST", tokenURL, nil)
 	if err != nil {
@@ -150,6 +162,7 @@ func (p *Provider) getOrgAccessToken() (string, error){
 	if err != nil {
 		return "", err
 	}
+	cache.Put("access_token", response.AccessToken)
+	cache.Put("access_token_expiry", time.Now().Unix() + response.ExpiresIn)
 	return response.AccessToken, nil
 }
-

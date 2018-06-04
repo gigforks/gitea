@@ -102,7 +102,6 @@ func Get(key string) (interface{}, error) {
 		return nil, fmt.Errorf("Error Conn: %v", conn)
 	}
 	if conn.IsExist(key) {
-		fmt.Println("Trying to get ", key)
 		return conn.Get(key), nil
 	}
 	return nil, fmt.Errorf("Error Key not found: %v", conn)
