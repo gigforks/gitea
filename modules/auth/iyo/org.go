@@ -7,15 +7,15 @@ import (
 	"crypto/tls"
 	"code.gitea.io/gitea/modules/cache"
 	"time"
+	"sync"
 )
 
 const iyoOrgURL = "https://itsyou.online/api/organizations"
 //const iyoOrgURL = "https://dev.itsyou.online:8443/api/organizations"
 
-type ChildOrganizations []Organization
 type Organization struct {
 	GlobalId 	string 			`json:"globalid"`
-	Children 	ChildOrganizations	`json:"children"`
+	Children 	[]Organization	`json:"children"`
 }
 
 // Get all organization children that the user is member of
@@ -29,13 +29,25 @@ func (p *Provider) GetUserOrganizations(userName string) ([]string, error){
 	if err != nil {
 		return nil, err
 	}
-	userOrganizations := make([]string, 0)
-	for _, globalId := range childOrganizations {
 
-		if userIsMemberOfOrg(userName, globalId, accessToken) {
+	// Check for user membership using go routine
+	userOrganizations := make([]string, 0)
+	var m sync.RWMutex
+	wg := sync.WaitGroup{}
+	wg.Add(len(childOrganizations))
+	addIfMemberOfOrg := func(username, globalId, accessToken string ){
+		if userIsMemberOfOrg(userName, globalId, accessToken){
+			m.Lock()
 			userOrganizations = append(userOrganizations, globalId)
+			m.Unlock()
 		}
+		wg.Done()
 	}
+	for _, globalId := range childOrganizations {
+		go addIfMemberOfOrg(userName, globalId, accessToken)
+	}
+	wg.Wait()
+
 	return userOrganizations, nil
 }
 
@@ -66,9 +78,9 @@ func (p *Provider) getOrganizations(accessToken string) ([]string, error){
 	endpoint := fmt.Sprintf("/%v/tree", p.config.ClientID)
 
 	hc := &http.Client{}
-	hc.Transport = &http.Transport{
+	/*hc.Transport = &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
+	}*/
 	req, _ := http.NewRequest("GET", iyoOrgURL + endpoint, nil)
 	req.Header.Set("Authorization", "token " + accessToken)
 	resp, err := hc.Do(req)
@@ -97,9 +109,9 @@ func userIsMemberOfOrg(username string, globalId string, accessToken string) boo
 	endpoint := fmt.Sprintf("/%v/users/ismember/%v", globalId, username)
 
 	hc := &http.Client{}
-	hc.Transport = &http.Transport{
+	/*hc.Transport = &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
+	}*/
 	req, _ := http.NewRequest("GET", iyoOrgURL + endpoint, nil)
 	req.Header.Set("Authorization", "token " + accessToken)
 	resp, err := hc.Do(req)
